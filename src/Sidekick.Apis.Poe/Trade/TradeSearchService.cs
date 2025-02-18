@@ -13,6 +13,7 @@ using Sidekick.Apis.Poe.Trade.Requests;
 using Sidekick.Apis.Poe.Trade.Requests.Filters;
 using Sidekick.Apis.Poe.Trade.Requests.Models;
 using Sidekick.Apis.Poe.Trade.Results;
+using Sidekick.Common;
 using Sidekick.Common.Exceptions;
 using Sidekick.Common.Extensions;
 using Sidekick.Common.Game;
@@ -140,13 +141,15 @@ public class TradeSearchService
             var leagueId = await settingsService.GetString(SettingKeys.LeagueId);
             var uri = new Uri($"{await GetBaseApiUrl(metadata.Game)}search/{leagueId.GetUrlSlugForLeague()}");
 
-            var json = JsonSerializer.Serialize(new QueryRequest() { Query = query, }, poeTradeClient.Options);
-
-            var body = new StringContent(json, Encoding.UTF8, "application/json");
+            var queryRequest = new QueryRequest() 
+            { 
+                Query = query,
+            };
+            var body = new StringContent(queryRequest.ToJson(), Encoding.UTF8, "application/json");
             var response = await poeTradeClient.HttpClient.PostAsync(uri, body);
 
             var content = await response.Content.ReadAsStreamAsync();
-            var result = await JsonSerializer.DeserializeAsync<TradeSearchResult<string>?>(content, poeTradeClient.Options);
+            var result = await content.FromJsonToAsync<TradeSearchResult<string>>();
             if (result != null)
             {
                 return result;
@@ -362,11 +365,7 @@ public class TradeSearchService
             }
 
             var content = await response.Content.ReadAsStreamAsync();
-            var result = await JsonSerializer.DeserializeAsync<FetchResult<Result?>>(content,
-                                                                                     new JsonSerializerOptions()
-                                                                                     {
-                                                                                         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                                                                                     });
+            var result = await content.FromJsonToAsync<FetchResult<Result?>>();
             if (result == null)
             {
                 return new();

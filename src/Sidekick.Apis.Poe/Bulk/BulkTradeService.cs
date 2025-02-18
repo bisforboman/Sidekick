@@ -7,6 +7,7 @@ using Sidekick.Apis.Poe.Clients;
 using Sidekick.Apis.Poe.Filters;
 using Sidekick.Apis.Poe.Static;
 using Sidekick.Apis.Poe.Trade.Requests;
+using Sidekick.Common;
 using Sidekick.Common.Exceptions;
 using Sidekick.Common.Extensions;
 using Sidekick.Common.Game;
@@ -72,14 +73,14 @@ public class BulkTradeService(
         var status = await settingsService.GetString(SettingKeys.PriceCheckStatus);
         model.Query.Status.Option = status ?? Status.Online;
 
-        var json = JsonSerializer.Serialize(model, poeTradeClient.Options);
+        var json = model.ToJson();
         var body = new StringContent(json, Encoding.UTF8, "application/json");
         var response = await poeTradeClient.HttpClient.PostAsync(uri, body);
 
         var content = await response.Content.ReadAsStringAsync();
         try
         {
-            var result = JsonSerializer.Deserialize<BulkResponse?>(content, poeTradeClient.Options);
+            var result = content.FromJsonTo<BulkResponse>();
             if (result == null)
             {
                 throw new ApiErrorException();

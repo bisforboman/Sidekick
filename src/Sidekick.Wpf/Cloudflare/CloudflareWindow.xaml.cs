@@ -1,10 +1,10 @@
 using System.ComponentModel;
 using System.Net;
-using System.Text.Json;
 using System.Windows;
 using System.Windows.Media;
 using Microsoft.Extensions.Logging;
 using Microsoft.Web.WebView2.Core;
+using Sidekick.Common;
 using Sidekick.Apis.Poe.CloudFlare;
 using Sidekick.Wpf.Helpers;
 using Application = System.Windows.Application;
@@ -163,7 +163,7 @@ public partial class CloudflareWindow
             logger.LogInformation("[CloudflareWindow] DevTools Network Parameters \n" + json);
 
             // Deserialize the JSON to extract request headers
-            var parameters = JsonSerializer.Deserialize<DevToolsParameters>(json, JsonSerializerOptions.Default);
+            var parameters = json.FromJsonTo<DevToolsParameters>();
             if (parameters?.Request != null)
             {
                 logger.LogInformation("[CloudflareWindow] Deserialized " + parameters.Request.Headers.Count + " headers");

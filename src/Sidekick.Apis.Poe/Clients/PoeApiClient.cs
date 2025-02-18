@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Sidekick.Apis.Poe.Clients.Exceptions;
 using Sidekick.Apis.Poe.Clients.Models;
+using Sidekick.Common;
 using Sidekick.Common.Settings;
 
 namespace Sidekick.Apis.Poe.Clients;
@@ -27,16 +28,7 @@ public class PoeApiClient : IPoeApiClient
         HttpClient.DefaultRequestHeaders.UserAgent.TryParseAdd("Sidekick");
         HttpClient.BaseAddress = new Uri(PoeApiUrl);
         HttpClient.Timeout = TimeSpan.FromHours(1);
-
-        Options = new JsonSerializerOptions()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        };
-        Options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
     }
-
-    private JsonSerializerOptions Options { get; }
 
     private HttpClient HttpClient { get; set; }
 
@@ -54,7 +46,7 @@ public class PoeApiClient : IPoeApiClient
             }
 
             var content = await response.Content.ReadAsStreamAsync();
-            var result = await JsonSerializer.DeserializeAsync<TReturn>(content, Options);
+            var result = await content.FromJsonToAsync<TReturn>();
             if (result != null)
             {
                 return result;

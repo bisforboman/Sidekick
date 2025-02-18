@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Sidekick.Apis.PoeNinja.Api;
 using Sidekick.Apis.PoeNinja.Models;
+using Sidekick.Common;
 using Sidekick.Common.Cache;
 using Sidekick.Common.Enums;
 using Sidekick.Common.Extensions;
@@ -23,7 +24,6 @@ public class PoeNinjaClient : IPoeNinjaClient
     private readonly ISettingsService settingsService;
     private readonly IHttpClientFactory httpClientFactory;
     private readonly ILogger<PoeNinjaClient> logger;
-    private readonly JsonSerializerOptions options;
 
     public PoeNinjaClient(
         ICacheProvider cacheProvider,
@@ -35,13 +35,6 @@ public class PoeNinjaClient : IPoeNinjaClient
         this.settingsService = settingsService;
         this.httpClientFactory = httpClientFactory;
         this.logger = logger;
-
-        options = new JsonSerializerOptions()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        };
-        options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
     }
 
     private HttpClient GetHttpClient()
@@ -237,7 +230,7 @@ public class PoeNinjaClient : IPoeNinjaClient
             using var client = GetHttpClient();
             var response = await client.GetAsync(url);
             var responseStream = await response.Content.ReadAsStreamAsync();
-            var result = await JsonSerializer.DeserializeAsync<PoeNinjaQueryResult<PoeNinjaItem>>(responseStream, options);
+            var result = await responseStream.FromJsonToAsync<PoeNinjaQueryResult<PoeNinjaItem>>();
             if (result == null)
             {
                 return [];
@@ -280,7 +273,7 @@ public class PoeNinjaClient : IPoeNinjaClient
             using var client = GetHttpClient();
             var response = await client.GetAsync(url);
             var responseStream = await response.Content.ReadAsStreamAsync();
-            var result = await JsonSerializer.DeserializeAsync<PoeNinjaQueryResult<PoeNinjaCurrency>>(responseStream, options);
+            var result = await responseStream.FromJsonToAsync<PoeNinjaQueryResult<PoeNinjaCurrency>>();
             if (result == null)
             {
                 return [];

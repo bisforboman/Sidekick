@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Sidekick.Apis.Poe.Authentication.Models;
+using Sidekick.Common;
 using Sidekick.Common.Browser;
 using Sidekick.Common.Platform.Interprocess;
 using Sidekick.Common.Settings;
@@ -170,7 +171,7 @@ internal class AuthenticationService : IAuthenticationService, IDisposable
         }
 
         var responseContent = await response.Content.ReadAsStreamAsync();
-        var result = await JsonSerializer.DeserializeAsync<Oauth2TokenResponse>(responseContent);
+        var result = await responseContent.FromJsonToAsync<Oauth2TokenResponse>();
 
         if (result == null || result.access_token == null)
         {

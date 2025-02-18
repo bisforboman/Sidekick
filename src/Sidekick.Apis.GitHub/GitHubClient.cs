@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Sidekick.Apis.GitHub.Api;
 using Sidekick.Apis.GitHub.Models;
+using Sidekick.Common;
 
 namespace Sidekick.Apis.GitHub;
 
@@ -110,12 +111,9 @@ public class GitHubClient
             return [];
         }
 
-        return await JsonSerializer.DeserializeAsync<Release[]>(utf8Json: await listResponse.Content.ReadAsStreamAsync(),
-                                                                options: new JsonSerializerOptions
-                                                                {
-                                                                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                                                                    PropertyNameCaseInsensitive = true,
-                                                                });
+        var response = await listResponse.Content.ReadAsStreamAsync();
+
+        return await response.FromJsonToAsync<Release[]>();
     }
 
     private async Task<Release?> GetLatestApiRelease()

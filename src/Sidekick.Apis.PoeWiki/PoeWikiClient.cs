@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Sidekick.Apis.PoeWiki.Api;
 using Sidekick.Apis.PoeWiki.Extensions;
 using Sidekick.Apis.PoeWiki.Models;
+using Sidekick.Common;
 using Sidekick.Common.Browser;
 using Sidekick.Common.Cache;
 using Sidekick.Common.Game.Items;
@@ -22,12 +23,6 @@ public class PoeWikiClient
     ICacheProvider cacheProvider
 ) : IPoeWikiClient
 {
-    private readonly JsonSerializerOptions options = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        PropertyNameCaseInsensitive = true
-    };
-
     private const string PoeWikiBaseUri = "https://www.poewiki.net/";
     private const string PoeWikiSubUrl = "w/index.php?search=";
 
@@ -130,7 +125,7 @@ public class PoeWikiClient
             using var client = GetHttpClient();
             var response = await client.GetAsync(QueryStringHelper.ToQueryString(query));
             var content = await response.Content.ReadAsStreamAsync();
-            var result = await JsonSerializer.DeserializeAsync<CargoQueryResult<MapResult>>(content, options);
+            var result = await content.FromJsonToAsync<CargoQueryResult<MapResult>>();
             return result?.CargoQuery.Select(x => x.Title).FirstOrDefault();
         }
         catch (Exception e)
@@ -158,7 +153,7 @@ public class PoeWikiClient
             using var client = GetHttpClient();
             var response = await client.GetAsync(QueryStringHelper.ToQueryString(query));
             var content = await response.Content.ReadAsStreamAsync();
-            var result = await JsonSerializer.DeserializeAsync<CargoQueryResult<BossResult>>(content, options);
+            var result = await content.FromJsonToAsync<CargoQueryResult<BossResult>>();
             if (result == null)
             {
                 return null;
@@ -203,7 +198,7 @@ public class PoeWikiClient
             using var client = GetHttpClient();
             var response = await client.GetAsync(QueryStringHelper.ToQueryString(query));
             var content = await response.Content.ReadAsStringAsync();
-            var result = JsonSerializer.Deserialize<CargoQueryResult<ItemResult>>(content, options);
+            var result = content.FromJsonTo<CargoQueryResult<ItemResult>>();
             if (result == null)
             {
                 return null;
@@ -250,7 +245,7 @@ public class PoeWikiClient
             using var client = GetHttpClient();
             var response = await client.GetAsync(QueryStringHelper.ToQueryString(query));
             var content = await response.Content.ReadAsStreamAsync();
-            var result = await JsonSerializer.DeserializeAsync<CargoQueryResult<ItemIdResult>>(content, options);
+            var result = await content.FromJsonToAsync<CargoQueryResult<ItemIdResult>>();
             if (result == null)
             {
                 return null;
@@ -294,7 +289,7 @@ public class PoeWikiClient
             using var client = GetHttpClient();
             var response = await client.GetAsync(QueryStringHelper.ToQueryString(query));
             var content = await response.Content.ReadAsStreamAsync();
-            var result = await JsonSerializer.DeserializeAsync<CargoQueryResult<ItemNameMetadataIdResult>>(content, options);
+            var result = await content.FromJsonToAsync<CargoQueryResult<ItemNameMetadataIdResult>>();
             if (result == null)
             {
                 return null;

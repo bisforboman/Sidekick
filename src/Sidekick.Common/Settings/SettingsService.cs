@@ -254,7 +254,7 @@ public class SettingsService(
             DateTimeOffset x => x.ToString(),
             Enum x => x.GetValueAttribute(),
             string x => x,
-            _ => JsonSerializer.Serialize(value),
+            _ => value.ToJson(),
         };
     }
 }

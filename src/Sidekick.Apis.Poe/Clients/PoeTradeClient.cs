@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Sidekick.Apis.Poe.Clients.Models;
+using Sidekick.Common;
 using Sidekick.Common.Game;
 using Sidekick.Common.Game.Languages;
 
@@ -18,16 +19,7 @@ public class PoeTradeClient : IPoeTradeClient
     {
         this.logger = logger;
         HttpClient = httpClientFactory.CreateClient(ClientNames.TradeClient);
-
-        Options = new JsonSerializerOptions()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        };
-        Options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
     }
-
-    public JsonSerializerOptions Options { get; }
 
     public HttpClient HttpClient { get; }
 
@@ -57,7 +49,7 @@ public class PoeTradeClient : IPoeTradeClient
 
             var content = await response.Content.ReadAsStreamAsync();
 
-            var result = await JsonSerializer.DeserializeAsync<FetchResult<TReturn>>(content, Options);
+            var result = await content.FromJsonToAsync<FetchResult<TReturn>>();
             if (result == null)
             {
                 throw new Exception($"[Trade Client] Could not understand the API response.");
