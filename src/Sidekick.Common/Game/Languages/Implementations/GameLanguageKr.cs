@@ -5,6 +5,8 @@ namespace Sidekick.Common.Game.Languages.Implementations;
 [GameLanguage("Korean", "kr")]
 public class GameLanguageKr : IGameLanguage
 {
+    public string DescriptionLastTwelveHours => "";
+
     public string PoeTradeBaseUrl => "https://poe.game.daum.net/trade/";
     public string PoeTradeApiBaseUrl => "https://poe.game.daum.net/api/trade/";
     public string Poe2TradeBaseUrl => "https://poe.game.daum.net/trade2/";

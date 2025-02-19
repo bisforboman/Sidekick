@@ -5,6 +5,8 @@ namespace Sidekick.Common.Game.Languages.Implementations;
 [GameLanguage("Japanese", "jp")]
 public class GameLanguageJp : IGameLanguage
 {
+    public string DescriptionLastTwelveHours => "";
+
     public string PoeTradeBaseUrl => "https://jp.pathofexile.com/trade/";
     public string PoeTradeApiBaseUrl => "https://jp.pathofexile.com/api/trade/";
     public string Poe2TradeBaseUrl => "https://jp.pathofexile.com/trade2/";

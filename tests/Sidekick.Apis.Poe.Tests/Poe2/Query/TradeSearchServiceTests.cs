@@ -50,6 +50,16 @@ public class TradeSearchServiceTests
     }
 
     [Fact]
+    public void TestName()
+    {
+        // Given
+
+        // When
+
+        // Then
+    }
+
+    [Fact]
     public async Task ExpectInputYieldsIsNotIdentified()
     {
         var input = ResourceHelper.ReadFileContent("TimeLostDiamond/item.txt");

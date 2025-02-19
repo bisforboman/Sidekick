@@ -63,6 +63,7 @@ public class PropertyParser
             new MonsterPackSizeProperty(gameLanguageProvider),
             new BlightedProperty(gameLanguageProvider),
             new BlightRavagedProperty(gameLanguageProvider),
+            new LastTwelveHoursProperty(gameLanguageProvider),
             new MapTierProperty(gameLanguageProvider),
             new AreaLevelProperty(gameLanguageProvider),
 
