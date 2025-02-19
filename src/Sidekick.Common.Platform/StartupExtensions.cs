@@ -35,15 +35,6 @@ public static class StartupExtensions
         services.AddSidekickInitializableService<IKeyboardProvider, KeyboardProvider>();
         services.AddSingleton<IGameLogProvider, GameLogProvider>();
 
-        services.Configure<SidekickConfiguration>(o =>
-        {
-            foreach (var keybind in o.Keybinds)
-            {
-                services.TryAddSingleton(keybind);
-                services.AddSidekickInitializableService(keybind, keybind);
-            }
-        });
-
         return services;
     }
 }
