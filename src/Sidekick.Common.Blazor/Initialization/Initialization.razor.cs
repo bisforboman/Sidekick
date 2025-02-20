@@ -133,9 +133,9 @@ public partial class Initialization : SidekickView
         }
     }
 
-    private Task ReportProgress()
+    private async Task ReportProgress()
     {
-        return InvokeAsync(() =>
+        await InvokeAsync(() =>
         {
             Percentage = Count == 0 ? 0 : Completed * 100 / Count;
             if (Percentage >= 100)
@@ -149,12 +149,8 @@ public partial class Initialization : SidekickView
             }
 
             StateHasChanged();
-            return Task.Delay(100);
         });
     }
 
-    public void Exit()
-    {
-        ApplicationService.Shutdown();
-    }
+    public void Exit() => ApplicationService.Shutdown();
 }
