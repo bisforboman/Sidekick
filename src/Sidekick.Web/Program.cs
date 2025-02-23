@@ -13,10 +13,7 @@ using Sidekick.Common.Platform.Interprocess;
 using Sidekick.Common.Ui;
 using Sidekick.Common.Ui.Views;
 using Sidekick.Common.Updater;
-using Sidekick.Modules.Chat;
 using Sidekick.Modules.Development;
-using Sidekick.Modules.General;
-using Sidekick.Modules.Maps;
 using Sidekick.Modules.Trade;
 using Sidekick.Modules.Wealth;
 using Sidekick.Web;
@@ -42,12 +39,6 @@ builder.Services
     .AddSidekickCommonInterprocess()
     .AddSidekickCommonUi()
 
-    // .AddSidekickCommonPlatform(o =>
-    // {
-    //     o.WindowsIconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot/favicon.ico");
-    //     o.OsxIconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot/apple-touch-icon.png");
-    // })
-
     // Apis
     .AddSidekickGitHubApi()
     .AddSidekickPoeApi()
@@ -57,12 +48,9 @@ builder.Services
     .AddSidekickUpdater()
 
     // Modules
-    .AddSidekickChat()
     .AddSidekickDevelopment()
-    .AddSidekickGeneral()
-    .AddSidekickMaps()
-    .AddSidekickTrade()
-    .AddSidekickWealth();
+    .AddSidekickTrade(false)
+    .AddSidekickWealth(false);
 
 builder.Services.AddApexCharts();
 builder.Services.AddSidekickInitializableService<IApplicationService, WebApplicationService>();

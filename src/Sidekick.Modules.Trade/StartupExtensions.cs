@@ -7,14 +7,17 @@ namespace Sidekick.Modules.Trade;
 
 public static class StartupExtensions
 {
-    public static IServiceCollection AddSidekickTrade(this IServiceCollection services)
+    public static IServiceCollection AddSidekickTrade(this IServiceCollection services, bool withKeybindHandler = true)
     {
         services.AddSidekickModule(typeof(StartupExtensions).Assembly);
 
         services.AddTransient<TradeResources>();
         services.AddScoped<PriceCheckService>();
 
-        services.AddSidekickKeybind<PriceCheckItemKeybindHandler>();
+        if (withKeybindHandler)
+        {
+            services.AddSidekickKeybind<PriceCheckItemKeybindHandler>();
+        }
 
         return services;
     }

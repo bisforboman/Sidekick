@@ -7,12 +7,13 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using Sidekick.Common.Platform.Localization;
 using Sidekick.Common.Platform.Windows.DllImport;
+using Sidekick.Common.Platform.Windows.Processes;
 
-namespace Sidekick.Common.Platform.Windows.Processes;
+namespace Sidekick.Common.Platform.Windows;
 
-public class ProcessProvider
+public class WindowsProcessProvider
 (
-    ILogger<ProcessProvider> logger,
+    ILogger<WindowsProcessProvider> logger,
     IApplicationService applicationService,
     ISidekickDialogs dialogService,
     PlatformResources platformResources
@@ -22,15 +23,15 @@ public class ProcessProvider
     private const string PATH_OF_EXILE_2_TITLE = "Path of Exile 2";
     private const string SIDEKICK_TITLE = "Sidekick";
 
-    private static readonly List<string> PossibleProcessNames = new()
-    {
+    private static readonly List<string> PossibleProcessNames =
+    [
         "PathOfExile",
         "PathOfExile_x64",
         "PathOfExile_KG",
         "PathOfExile_x64_KG",
         "PathOfExileSteam",
         "PathOfExile_x64Steam"
-    };
+    ];
 
     public string? ClientLogPath
     {
@@ -125,7 +126,7 @@ public class ProcessProvider
     public bool IsSidekickInFocus => GetFocusedWindow()?.StartsWith(SIDEKICK_TITLE) ?? false;
 
     /// <inheritdoc/>
-    public int Priority => 0;
+    public int Priority => 1000;
 
     /// <inheritdoc/>
     public Task Initialize()
@@ -138,7 +139,7 @@ public class ProcessProvider
 
         WindowsHook = EventLoop.Run(WinEvent.EVENT_SYSTEM_FOREGROUND,
                                     WinEvent.EVENT_SYSTEM_CAPTURESTART,
-                                    IntPtr.Zero,
+                                    nint.Zero,
                                     OnWindowsEvent,
                                     0,
                                     0,
@@ -149,9 +150,9 @@ public class ProcessProvider
     }
 
     private void OnWindowsEvent(
-        IntPtr hWinEventHook,
+        nint hWinEventHook,
         uint eventType,
-        IntPtr hwnd,
+        nint hwnd,
         int idObject,
         int idChild,
         uint dwEventThread,
@@ -242,7 +243,7 @@ public class ProcessProvider
     private bool IsPathOfExileRunAsAdmin()
     {
         var result = false;
-        var ph = IntPtr.Zero;
+        var ph = nint.Zero;
 
         try
         {

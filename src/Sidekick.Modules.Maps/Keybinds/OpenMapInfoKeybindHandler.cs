@@ -20,7 +20,7 @@ public class OpenMapInfoKeybindHandler(
         await settingsService.GetString(SettingKeys.KeyOpenMapCheck)
     ];
 
-    public override bool IsValid(string _) => processProvider.IsPathOfExileInFocus;
+    protected override bool IsValid(string _) => processProvider.IsPathOfExileInFocus;
 
     public override async Task Execute(string keybind)
     {

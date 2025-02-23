@@ -52,11 +52,7 @@ public class ParserFixture : IAsyncLifetime
         await SettingsService.Set(SettingKeys.LanguageUi, "en");
         await SettingsService.Set(SettingKeys.LeagueId, "poe2.Standard");
 
-        if (initializationTask == null)
-        {
-            var serviceProvider = TestContext.Services.GetRequiredService<IServiceProvider>();
-            initializationTask = Initialize(serviceProvider);
-        }
+        initializationTask ??= Initialize(TestContext.Services);
 
         await initializationTask;
 
@@ -82,14 +78,8 @@ public class ParserFixture : IAsyncLifetime
         await cache.Clear();
 
         var logger = serviceProvider.GetRequiredService<ILogger<ParserFixture>>();
-        foreach (var serviceType in SidekickConfiguration.InitializableServices)
+        foreach (var initializableService in serviceProvider.GetServices<IInitializableService>())
         {
-            var service = serviceProvider.GetRequiredService(serviceType);
-            if (service is not IInitializableService initializableService)
-            {
-                continue;
-            }
-
             logger.LogInformation($"[Initialization] Initializing {initializableService.GetType().FullName}");
             await initializableService.Initialize();
         }

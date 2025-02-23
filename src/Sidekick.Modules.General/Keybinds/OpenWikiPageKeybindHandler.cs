@@ -25,7 +25,7 @@ public class OpenWikiPageKeybindHandler(
         await settingsService.GetString(SettingKeys.KeyOpenWiki)
     ];
 
-    public override bool IsValid(string _) => processProvider.IsPathOfExileInFocus;
+    protected override bool IsValid(string _) => processProvider.IsPathOfExileInFocus;
 
     public override async Task Execute(string keybind)
     {

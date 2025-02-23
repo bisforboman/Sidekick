@@ -14,7 +14,7 @@ public class SettingsService(
 {
     public event Action? OnSettingsChanged;
 
-    public int Priority { get; set; } = int.MinValue;
+    public int Priority => int.MinValue;
 
     public async Task Initialize()
     {

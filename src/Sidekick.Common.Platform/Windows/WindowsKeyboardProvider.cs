@@ -8,10 +8,10 @@ using SharpHook.Logging;
 using SharpHook.Native;
 using Sidekick.Common.Keybinds;
 
-namespace Sidekick.Common.Platform.Keyboards;
+namespace Sidekick.Common.Platform.Windows;
 
-public class KeyboardProvider(
-    ILogger<KeyboardProvider> logger,
+public class WindowsKeyboardProvider(
+    ILogger<WindowsKeyboardProvider> logger,
     IServiceProvider serviceProvider,
     IProcessProvider processProvider) : IKeyboardProvider, IDisposable
 {
@@ -137,12 +137,10 @@ public class KeyboardProvider(
 
     public event Action<string>? OnKeyDown;
 
-    private List<KeybindHandler> KeybindHandlers { get; init; } =
-    [
-    ];
+    private IReadOnlyList<IKeybindHandler> KeybindHandlers { get; set; } = [];
 
     /// <inheritdoc/>
-    public int Priority => 100;
+    public int Priority => 1000;
 
     /// <inheritdoc/>
     public Task Initialize()
@@ -158,13 +156,7 @@ public class KeyboardProvider(
 
     public void RegisterHooks()
     {
-        // Initialize keybindings
-        KeybindHandlers.Clear();
-        foreach (var keybindType in SidekickConfiguration.Keybinds)
-        {
-            var keybindHandler = (KeybindHandler)serviceProvider.GetRequiredService(keybindType);
-            KeybindHandlers.Add(keybindHandler);
-        }
+        KeybindHandlers = [.. serviceProvider.GetServices<IKeybindHandler>()];
 
         // We can't initialize twice
         if (HasInitialized)
@@ -233,6 +225,23 @@ public class KeyboardProvider(
         }
 
         // Transfer the event key to a string to compare to settings
+        var keybind = CreateKeybind(args, key);
+        OnKeyDown?.Invoke(keybind);
+
+        foreach (var keybindHandler in KeybindHandlers.Where(keybindHandler => keybindHandler.UsesKeybind(keybind)))
+        {
+            logger.LogDebug($"[Keyboard] Executing keybind handler for {keybind}.");
+            args.SuppressEvent = true;
+            Task.Run(async () =>
+            {
+                await keybindHandler.Execute(keybind);
+                logger.LogDebug($"[Keyboard] Completed Keybind Handler for {keybind}.");
+            });
+        }
+    }
+
+    private static string CreateKeybind(KeyboardHookEventArgs args, string key)
+    {
         var str = new StringBuilder();
         if ((args.RawEvent.Mask & ModifierMask.Ctrl) > 0)
         {
@@ -250,19 +259,7 @@ public class KeyboardProvider(
         }
 
         str.Append(key);
-        var keybind = str.ToString();
-        OnKeyDown?.Invoke(keybind);
-
-        foreach (var keybindHandler in KeybindHandlers.Where(keybindHandler => keybindHandler.Keybinds.Contains(keybind) && keybindHandler.IsValid(keybind)))
-        {
-            logger.LogDebug($"[Keyboard] Executing keybind handler for {str}.");
-            args.SuppressEvent = true;
-            Task.Run(async () =>
-            {
-                await keybindHandler.Execute(keybind);
-                logger.LogDebug($"[Keyboard] Completed Keybind Handler for {str}.");
-            });
-        }
+        return str.ToString();
     }
 
     public Task PressKey(params string[] keyStrokes)

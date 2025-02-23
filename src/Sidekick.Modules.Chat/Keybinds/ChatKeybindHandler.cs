@@ -28,7 +28,7 @@ public class ChatKeybindHandler(
                ];
     }
 
-    public override bool IsValid(string keybind) => processProvider.IsPathOfExileInFocus
+    protected override bool IsValid(string keybind) => processProvider.IsPathOfExileInFocus
                                            && Keybinds.Any(x => x == keybind);
 
     public override async Task Execute(string keybind)

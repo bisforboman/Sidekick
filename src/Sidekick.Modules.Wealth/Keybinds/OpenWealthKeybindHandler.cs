@@ -17,7 +17,7 @@ public class OpenWealthKeybindHandler(
         await settingsService.GetString(SettingKeys.KeyOpenWealth)
     ];
 
-    public override bool IsValid(string _) => processProvider.IsPathOfExileInFocus || processProvider.IsSidekickInFocus;
+    protected override bool IsValid(string _) => processProvider.IsPathOfExileInFocus || processProvider.IsSidekickInFocus;
 
     public override Task Execute(string _)
     {
