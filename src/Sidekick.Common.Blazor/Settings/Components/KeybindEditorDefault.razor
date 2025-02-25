@@ -1,0 +1,47 @@
+@if (!ApplicationService.SupportsKeybinds)
+{
+    return;
+}
+
+<KeybindEditorInternal Label="@Label"
+                       Value="@Value"
+                       ValueChanged="@KeyChanged" />
+
+@using Sidekick.Common.Platform
+@using Sidekick.Common.Settings
+
+@inject IApplicationService ApplicationService
+@inject ISettingsService SettingsService
+@inject IKeyboardProvider KeyboardProvider
+
+@code {
+
+    [Parameter]
+    public required string Label { get; set; }
+
+    [Parameter]
+    public required string DatabaseKey { get; set; }
+
+    [Parameter]
+    public required Func<Task> KeybindAlreadyInUseAlert { get; init; }
+
+    private string? Value { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Value = await SettingsService.GetString(DatabaseKey);
+        await base.OnInitializedAsync();
+    }
+
+    private async Task KeyChanged(string? value)
+    {
+        if (KeyboardProvider.UsedKeybinds.Contains(value))
+        {
+            await KeybindAlreadyInUseAlert.Invoke();
+            return;
+        }
+
+        Value = value;
+        await SettingsService.Set(DatabaseKey, value);
+    }
+}

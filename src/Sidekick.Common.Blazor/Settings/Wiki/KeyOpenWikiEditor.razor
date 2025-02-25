@@ -1,27 +1,16 @@
-@using Sidekick.Common.Settings
+@using Sidekick.Common.Blazor.Settings
 @using Sidekick.Common.Blazor.Settings.Components
+@using Sidekick.Common.Settings
 
-<KeybindEditor Value="@KeyOpen"
-               ValueChanged="KeyChanged"
-               Label="@Resources.Wiki_Key_Open"/>
+<KeybindEditorDefault Label="@Resources["Wiki_Key_Open"]"
+               DatabaseKey="@SettingKeys.KeyOpenWiki"
+               KeybindAlreadyInUseAlert="@KeybindAlreadyInUseAlert"/>
 
-@inject SettingsResources Resources
-@inject ISettingsService SettingsService
+@inject IStringLocalizer<SettingsResources> Resources
 
 @code {
 
-    private string? KeyOpen { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        KeyOpen = await SettingsService.GetString(SettingKeys.KeyOpenWiki);
-        await base.OnInitializedAsync();
-    }
-
-    private async Task KeyChanged(string? value)
-    {
-        KeyOpen = value;
-        await SettingsService.Set(SettingKeys.KeyOpenWiki, value);
-    }
+    [Parameter]
+    public required Func<Task> KeybindAlreadyInUseAlert { get; init; }
 
 }
