@@ -105,15 +105,29 @@ public class ModifierProvider
                     }
 
                     optionText = RemoveSquareBrackets(optionText);
-                    patterns.Add(new ModifierPattern(modifierCategory, entry.Id, options.Any(), text: ComputeOptionText(entry.Text, optionText), fuzzyText: ComputeFuzzyText(modifierCategory, entry.Text, optionText), pattern: ComputePattern(entry.Text, modifierCategory, optionText))
+                    patterns.Add(new()
                     {
+                        Category = modifierCategory,
+                        Id = entry.Id,
+                        IsOption = options.Any(),
+                        Text = ComputeOptionText(entry.Text, optionText),
+                        FuzzyText = ComputeFuzzyText(modifierCategory, entry.Text, optionText),
+                        Pattern = ComputePattern(entry.Text, modifierCategory, optionText),
                         Value = option.Id,
                     });
                 }
             }
             else
             {
-                patterns.Add(new ModifierPattern(modifierCategory, entry.Id, options.Any(), entry.Text, fuzzyText: ComputeFuzzyText(modifierCategory, entry.Text), pattern: ComputePattern(entry.Text, modifierCategory)));
+                patterns.Add(new()
+                {
+                    Category = modifierCategory,
+                    Id = entry.Id,
+                    IsOption = options.Any(), 
+                    Text = entry.Text, 
+                    FuzzyText = ComputeFuzzyText(modifierCategory, entry.Text),
+                    Pattern = ComputePattern(entry.Text, modifierCategory)
+                });
             }
         }
 
@@ -145,8 +159,14 @@ public class ModifierProvider
         foreach (var group in patterns.GroupBy(x => x.Id))
         {
             var pattern = group.OrderBy(x => x.Value).First();
-            specialPatterns.Add(new ModifierPattern(category: pattern.Category, id: pattern.Id, isOption: pattern.IsOption, text: pattern.Text, fuzzyText: ComputeFuzzyText(ModifierCategory.Pseudo, pattern.Text), pattern: ComputePattern(pattern.Text.Split(':', 2).Last().Trim(), ModifierCategory.Pseudo))
+            specialPatterns.Add(new()
             {
+                Id = pattern.Id,
+                IsOption = pattern.IsOption,
+                Text = pattern.Text,
+                FuzzyText = ComputeFuzzyText(ModifierCategory.Pseudo, pattern.Text),
+                Pattern = ComputePattern(pattern.Text.Split(':', 2).Last().Trim(), ModifierCategory.Pseudo),
+                Category = pattern.Category,
                 OptionText = pattern.OptionText,
                 Value = pattern.Value,
             });

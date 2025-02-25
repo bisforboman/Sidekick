@@ -5,37 +5,21 @@ namespace Sidekick.Apis.Poe.Modifiers.Models;
 
 public class ModifierPattern
 {
-    public ModifierPattern(
-        ModifierCategory category,
-        string id,
-        bool isOption,
-        string text,
-        string fuzzyText,
-        Regex pattern)
-    {
-        Category = category;
-        Id = id;
-        IsOption = isOption;
-        Text = text;
-        FuzzyText = fuzzyText;
-        Pattern = pattern;
-    }
+    public required string Id { get; init; }
 
-    public string Id { get; }
+    public ModifierCategory Category { get; init; }
 
-    public ModifierCategory Category { get; }
+    public required bool IsOption { get; init; }
 
-    public bool IsOption { get; }
+    public required string Text { get; init; }
 
-    public string Text { get; }
+    public required string FuzzyText { get; init; }
 
-    public string FuzzyText { get; set; }
-
-    public string? OptionText { get; set; }
+    public string? OptionText { get; init; }
 
     public int LineCount => OptionText != null ? (OptionText?.Split('\n').Length ?? 1) : (Text?.Split('\n').Length ?? 1);
 
-    public Regex Pattern { get; set; }
+    public required Regex Pattern { get; init; }
 
-    public int? Value { get; set; }
+    public int? Value { get; init; }
 }
