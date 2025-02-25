@@ -1,13 +1,14 @@
-
 <FormInput OnFocus="Focus"
-           OnBlur="Blur"
-           Label="@Label"
-           Value="@InputValue"
-           AdditionalClasses="cursor-default caret-transparent"
-           spellcheck="false">
+        OnBlur="Blur"
+        Label="@Label"
+        Value="@InputValue"
+        AdditionalClasses="cursor-default caret-transparent"
+        spellcheck="false">
     <AdornmentContent>
         <ButtonSecondary OnClick="Delete">@Resources["Reset"]</ButtonSecondary>
+        <ValidationMessage For="() => Id" />
     </AdornmentContent>
+
 </FormInput>
 
 @using Sidekick.Common.Platform
@@ -79,6 +80,9 @@
 
                 if (key != "Esc")
                 {
+                    if (Keyboard.UsedKeybinds.Contains(key))
+                        return;
+
                     await ValueChanged.InvokeAsync(key);
                 }
 

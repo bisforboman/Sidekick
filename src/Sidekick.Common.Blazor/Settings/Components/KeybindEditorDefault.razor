@@ -12,7 +12,6 @@
 
 @inject IApplicationService ApplicationService
 @inject ISettingsService SettingsService
-@inject IKeyboardProvider KeyboardProvider
 
 @code {
 
@@ -32,12 +31,6 @@
 
     private async Task KeyChanged(string? value)
     {
-        if (KeyboardProvider.UsedKeybinds.Contains(value))
-        {
-            // set invalid
-            return;
-        }
-
         Value = value;
         await SettingsService.Set(DatabaseKey, value);
     }
