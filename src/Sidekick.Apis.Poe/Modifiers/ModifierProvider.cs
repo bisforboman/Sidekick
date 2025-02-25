@@ -63,7 +63,13 @@ public class ModifierProvider
         foreach (var apiCategory in apiCategories.Result)
         {
             var modifierCategory = GetModifierCategory(apiCategory.Entries[0].Id);
-            var patterns = ComputeCategoryPatterns(apiCategory, modifierCategory);
+
+            if (modifierCategory is ModifierCategory.Undefined)
+            {
+                continue;
+            }
+
+            var patterns = ComputeCategoryPatterns(apiCategory, modifierCategory).ToList();
 
             if (!Patterns.TryAdd(modifierCategory, patterns))
             {
@@ -81,14 +87,8 @@ public class ModifierProvider
         ComputeSpecialPseudoPattern(pseudoPatterns, logbookPatterns);
     }
 
-    private List<ModifierPattern> ComputeCategoryPatterns(ApiCategory apiCategory, ModifierCategory modifierCategory)
+    private IEnumerable<ModifierPattern> ComputeCategoryPatterns(ApiCategory apiCategory, ModifierCategory modifierCategory)
     {
-        if (apiCategory.Entries.Count == 0 || modifierCategory == ModifierCategory.Undefined)
-        {
-            return [];
-        }
-
-        var patterns = new List<ModifierPattern>();
         foreach (var entry in apiCategory.Entries)
         {
             entry.Text = RemoveSquareBrackets(entry.Text);
@@ -98,14 +98,13 @@ public class ModifierProvider
             {
                 foreach (var option in options)
                 {
-                    var optionText = option.Text;
-                    if (optionText == null)
+                    if (option.Text is null)
                     {
                         continue;
                     }
 
-                    optionText = RemoveSquareBrackets(optionText);
-                    patterns.Add(new()
+                    var optionText = RemoveSquareBrackets(option.Text);
+                    yield return new()
                     {
                         Category = modifierCategory,
                         Id = entry.Id,
@@ -114,24 +113,22 @@ public class ModifierProvider
                         FuzzyText = ComputeFuzzyText(modifierCategory, entry.Text, optionText),
                         Pattern = ComputePattern(entry.Text, modifierCategory, optionText),
                         Value = option.Id,
-                    });
+                    };
                 }
             }
             else
             {
-                patterns.Add(new()
+                yield return new()
                 {
                     Category = modifierCategory,
                     Id = entry.Id,
-                    IsOption = options.Any(), 
-                    Text = entry.Text, 
+                    IsOption = options.Any(),
+                    Text = entry.Text,
                     FuzzyText = ComputeFuzzyText(modifierCategory, entry.Text),
                     Pattern = ComputePattern(entry.Text, modifierCategory)
-                });
+                };
             }
         }
-
-        return patterns;
     }
 
     /// <inheritdoc/>
