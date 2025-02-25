@@ -21,7 +21,7 @@ public class ModifierProvider
     IFuzzyService fuzzyService
 ) : IModifierProvider
 {
-    private readonly Regex parseHashPattern = new("\\#");
+    private static readonly Regex parseHashPattern = new("\\#");
 
     /// <summary>
     /// A regular expression used to extract and process text within square brackets,
@@ -43,9 +43,9 @@ public class ModifierProvider
         return parseSquareBracketPattern.Replace(text, "$1");
     }
 
-    private readonly Regex newLinePattern = new("(?:\\\\)*[\\r\\n]+");
-    private readonly Regex hashPattern = new("\\\\#");
-    private readonly Regex parenthesesPattern = new("((?:\\\\\\ )*\\\\\\([^\\(\\)]*\\\\\\))");
+    private static readonly Regex newLinePattern = new("(?:\\\\)*[\\r\\n]+");
+    private static readonly Regex hashPattern = new("\\\\#");
+    private static readonly Regex parenthesesPattern = new("((?:\\\\\\ )*\\\\\\([^\\(\\)]*\\\\\\))");
 
     public Dictionary<ModifierCategory, List<ModifierPattern>> Patterns { get; } = new();
 
@@ -177,7 +177,7 @@ public class ModifierProvider
         pseudoPatterns.AddRange(specialPatterns);
     }
 
-    private Regex ComputePattern(string text, ModifierCategory? category = null, string? optionText = null)
+    private static Regex ComputePattern(string text, ModifierCategory? category = null, string? optionText = null)
     {
         text = RemoveSquareBrackets(text);
         if (optionText != null) optionText = RemoveSquareBrackets(optionText);
@@ -264,7 +264,7 @@ public class ModifierProvider
         return fuzzyService.CleanFuzzyText(fuzzyValue);
     }
 
-    private string ComputeOptionText(string text, string optionText)
+    private static string ComputeOptionText(string text, string optionText)
     {
         var optionLines = new List<string>();
         foreach (var optionLine in newLinePattern.Split(optionText))
