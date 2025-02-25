@@ -273,17 +273,8 @@ public class ModifierProvider
         return string.Join('\n', optionLines).Trim('\r', '\n');
     }
 
-    public bool IsMatch(string id, string text)
-    {
-        foreach (var patternGroup in Patterns)
-        {
-            var pattern = patternGroup.Value.FirstOrDefault(x => x.Id == id);
-            if (pattern != null && pattern.Pattern.IsMatch(text))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
+    public bool IsMatch(string id, string text) => 
+        Patterns.Values
+            .Select(modifierPatterns => modifierPatterns.FirstOrDefault(x => x.Id == id))
+            .Any(modifierPattern => modifierPattern is not null && modifierPattern.Pattern.IsMatch(text));
 }
