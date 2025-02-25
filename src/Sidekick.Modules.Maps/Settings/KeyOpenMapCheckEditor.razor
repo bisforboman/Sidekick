@@ -3,14 +3,7 @@
 @using Sidekick.Common.Settings
 
 <KeybindEditorDefault Label="@Resources["Map_Key_Check"]"
-                      DatabaseKey="@SettingKeys.KeyOpenMapCheck"
-                      KeybindAlreadyInUseAlert="@KeybindAlreadyInUseAlert"/>
+                      DatabaseKey="@SettingKeys.KeyOpenMapCheck" />
 
 @inject IStringLocalizer<SettingsResources> Resources
 
-@code {
-
-    [Parameter]
-    public required Func<Task> KeybindAlreadyInUseAlert { get; init; }
-
-}

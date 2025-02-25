@@ -3,14 +3,7 @@
 @using Sidekick.Common.Settings
 
 <KeybindEditorDefault Label="@Resources["Wiki_Key_Open"]"
-               DatabaseKey="@SettingKeys.KeyOpenWiki"
-               KeybindAlreadyInUseAlert="@KeybindAlreadyInUseAlert"/>
+               DatabaseKey="@SettingKeys.KeyOpenWiki" />
 
 @inject IStringLocalizer<SettingsResources> Resources
 
-@code {
-
-    [Parameter]
-    public required Func<Task> KeybindAlreadyInUseAlert { get; init; }
-
-}

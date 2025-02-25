@@ -4,14 +4,6 @@
 
 <KeybindEditorDefault 
         Label="@Resources["PriceCheck_Key_Check"]"
-        DatabaseKey="@SettingKeys.KeyOpenPriceCheck"
-        KeybindAlreadyInUseAlert="@KeybindAlreadyInUseAlert"/>
+        DatabaseKey="@SettingKeys.KeyOpenPriceCheck" />
 
 @inject IStringLocalizer<SettingsResources> Resources
-
-@code {
-
-    [Parameter]
-    public required Func<Task> KeybindAlreadyInUseAlert { get; init; }
-
-}

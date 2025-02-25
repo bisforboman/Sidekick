@@ -2,14 +2,9 @@
 @using Sidekick.Common.Blazor.Settings.General
 @inherits Sidekick.Common.Ui.Views.SidekickView
 
-@if (ErrorMessage is not null)
-{
-    <AlertWarning WarningText="@ErrorMessage" />
-}
-
 <FormFieldset Legend="@Resources["Keybindings"]">
-    <KeyOpenMapCheckEditor KeybindAlreadyInUseAlert="ShowKeybindWarning" />
-    <KeyCloseEditor KeybindAlreadyInUseAlert="ShowKeybindWarning" />
+    <KeyOpenMapCheckEditor />
+    <KeyCloseEditor />
 </FormFieldset>
 
 <FormFieldset Legend="@Resources["Dangerous_Modifiers"]">
@@ -22,20 +17,3 @@
 </FormFieldset>
 
 @inject IStringLocalizer<SettingsResources> Resources
-
-@code {
-    private string? ErrorMessage { get; set; }
-
-    public Func<Task> ShowKeybindWarning => () => ShowKeybindAlreadyInUseWarning();
-
-    private async Task ShowKeybindAlreadyInUseWarning()
-    {
-        ErrorMessage = @Resources["Keybind_Already_In_Use"];
-        StateHasChanged();
-
-        await Task.Delay(3000);
-        ErrorMessage = null;
-
-        StateHasChanged();
-    }
-}

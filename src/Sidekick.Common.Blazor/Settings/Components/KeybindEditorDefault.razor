@@ -22,9 +22,6 @@
     [Parameter]
     public required string DatabaseKey { get; set; }
 
-    [Parameter]
-    public required Func<Task> KeybindAlreadyInUseAlert { get; init; }
-
     private string? Value { get; set; }
 
     protected override async Task OnInitializedAsync()
@@ -37,7 +34,7 @@
     {
         if (KeyboardProvider.UsedKeybinds.Contains(value))
         {
-            await KeybindAlreadyInUseAlert.Invoke();
+            // set invalid
             return;
         }
 
