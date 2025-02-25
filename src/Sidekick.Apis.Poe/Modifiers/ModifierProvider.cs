@@ -222,10 +222,12 @@ public class ModifierProvider
 
     private string ComputeFuzzyText(ModifierCategory category, string text, string? optionText = null)
     {
-        text = RemoveSquareBrackets(text);
-        if (optionText != null) optionText = RemoveSquareBrackets(optionText);
+        var fuzzyValue = RemoveSquareBrackets(text);
 
-        var fuzzyValue = text;
+        if (!string.IsNullOrEmpty(optionText))
+        {
+            optionText = RemoveSquareBrackets(optionText);
+        }
 
         if (!string.IsNullOrEmpty(optionText))
         {
