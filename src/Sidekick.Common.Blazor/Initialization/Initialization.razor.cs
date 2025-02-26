@@ -25,7 +25,7 @@ public partial class Initialization : SidekickView
     private IApplicationService ApplicationService { get; set; } = null!;
 
     [Inject]
-    private IServiceProvider ServiceProvider { get; set; } = null!;
+    private IEnumerable<IInitializableService> InitializableServices { get; set; } = [];
 
     [Inject]
     private ISettingsService SettingsService { get; set; } = null!;
@@ -64,7 +64,7 @@ public partial class Initialization : SidekickView
         try
         {
             Completed = 0;
-            Count = SidekickConfiguration.InitializableServices.Count;
+            Count = InitializableServices.Count();
             var version = ApplicationService.GetVersion();
             var previousVersion = await SettingsService.GetString(SettingKeys.Version);
             if (version != previousVersion)
@@ -76,16 +76,7 @@ public partial class Initialization : SidekickView
             // Report initial progress
             await ReportProgress();
 
-            var services = SidekickConfiguration.InitializableServices.Select(serviceType =>
-                {
-                    var service = ServiceProvider.GetRequiredService(serviceType);
-                    return service as IInitializableService;
-                })
-                .Where(x => x != null)
-                .Select(x => x!)
-                .OrderBy(x => x.Priority);
-
-            foreach (var service in services)
+            foreach (var service in InitializableServices.OrderBy(x => x.Priority))
             {
                 Logger.LogInformation($"[Initialization] Initializing {service.GetType().FullName}");
                 await service.Initialize();
@@ -145,7 +136,7 @@ public partial class Initialization : SidekickView
             }
 
             StateHasChanged();
-            return Task.Delay(100);
+            return Task.CompletedTask;
         });
     }
 

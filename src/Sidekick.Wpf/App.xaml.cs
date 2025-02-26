@@ -151,7 +151,9 @@ public partial class App
             .AddSidekickWealth()
 
             // Platform needs to be at the end
-            .AddSidekickCommonPlatform(o =>
+            .AddSidekickCommonPlatform()
+            .AddWindowsSpecificServices()
+            .Configure<PlatformOptions>(o =>
             {
                 o.WindowsIconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot/favicon.ico");
                 o.OsxIconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot/apple-touch-icon.png");

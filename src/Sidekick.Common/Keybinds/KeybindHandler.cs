@@ -1,12 +1,8 @@
-using Sidekick.Common.Initialization;
 using Sidekick.Common.Settings;
 
 namespace Sidekick.Common.Keybinds;
 
-/// <summary>
-///     Interface for keybind handlers
-/// </summary>
-public abstract class KeybindHandler : IInitializableService
+public abstract class KeybindHandler : IKeybindHandler
 {
     protected KeybindHandler(ISettingsService settingsService)
     {
@@ -22,13 +18,8 @@ public abstract class KeybindHandler : IInitializableService
             });
     }
 
-    /// <summary>
-    /// Gets the keybinds that this handler handles.
-    /// </summary>
-    /// <returns>The list of keybinds.</returns>
-    public List<string?> Keybinds { get; private set; } =
-    [
-    ];
+    /// <inheritdoc />
+    public List<string?> Keybinds { get; private set; } = [];
 
     public int Priority => 0;
 
@@ -43,18 +34,10 @@ public abstract class KeybindHandler : IInitializableService
     /// <returns>The list of keybinds.</returns>
     protected abstract Task<List<string?>> GetKeybinds();
 
-    /// <summary>
-    ///     When a keypress occurs, check if this keybind should be executed
-    /// </summary>
-    /// <param name="keybind">The keybind that was pressed</param>
-    /// <returns>True if we need to execute this keybind</returns>
+    /// <inheritdoc />
     public abstract bool IsValid(string keybind);
 
-    /// <summary>
-    ///     Executes when a valid keybind is detected
-    /// </summary>
-    /// <param name="keybind">The keybind that was pressed</param>
-    /// <returns>A task</returns>
+    /// <inheritdoc />
     public abstract Task Execute(string keybind);
 
 }

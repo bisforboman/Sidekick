@@ -6,12 +6,16 @@ namespace Sidekick.Modules.Wealth;
 
 public static class StartupExtensions
 {
-    public static IServiceCollection AddSidekickWealth(this IServiceCollection services)
+    public static IServiceCollection AddSidekickWealth(this IServiceCollection services, bool withKeybindHandler = true)
     {
         services.AddSidekickModule(typeof(StartupExtensions).Assembly);
 
         services.AddSingleton<WealthParser>();
-        // services.AddSidekickKeybind<OpenWealthKeybindHandler>();
+
+        if (withKeybindHandler)
+        {
+            services.AddSidekickKeybind<OpenWealthKeybindHandler>();
+        }
 
         return services;
     }

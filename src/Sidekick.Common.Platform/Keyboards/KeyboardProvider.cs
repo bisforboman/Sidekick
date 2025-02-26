@@ -137,7 +137,7 @@ public class KeyboardProvider(
 
     public event Action<string>? OnKeyDown;
 
-    private List<KeybindHandler> KeybindHandlers { get; init; } =
+    private List<IKeybindHandler> KeybindHandlers { get; set; } =
     [
     ];
 
@@ -158,13 +158,7 @@ public class KeyboardProvider(
 
     public void RegisterHooks()
     {
-        // Initialize keybindings
-        KeybindHandlers.Clear();
-        foreach (var keybindType in SidekickConfiguration.Keybinds)
-        {
-            var keybindHandler = (KeybindHandler)serviceProvider.GetRequiredService(keybindType);
-            KeybindHandlers.Add(keybindHandler);
-        }
+        KeybindHandlers = [.. serviceProvider.GetServices<IKeybindHandler>()];
 
         // We can't initialize twice
         if (HasInitialized)

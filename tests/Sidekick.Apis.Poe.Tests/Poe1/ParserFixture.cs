@@ -20,18 +20,20 @@ public class ParserFixture : IAsyncLifetime
     public IInvariantModifierProvider InvariantModifierProvider { get; private set; } = null!;
 
     public IItemParser Parser { get; private set; } = null!;
+    private TestContext TestContext { get; set; } = null!;
 
     public Task DisposeAsync()
     {
+        TestContext.Dispose();
         return Task.CompletedTask;
     }
 
     public async Task InitializeAsync()
     {
-        using var ctx = new TestContext();
-        ctx.Services.AddLocalization();
+        TestContext = new TestContext();
+        TestContext.Services.AddLocalization();
 
-        ctx.Services
+        TestContext.Services
             // Building blocks
             .AddSidekickCommon()
             .AddSidekickCommonDatabase(SidekickPaths.DatabasePath)
@@ -41,21 +43,17 @@ public class ParserFixture : IAsyncLifetime
                 .AddSidekickPoeNinjaApi()
                 .AddSidekickPoeWikiApi();
 
-        var settingsService = ctx.Services.GetRequiredService<ISettingsService>();
+        var settingsService = TestContext.Services.GetRequiredService<ISettingsService>();
         await settingsService.Set(SettingKeys.LanguageParser, "en");
         await settingsService.Set(SettingKeys.LanguageUi, "en");
         await settingsService.Set(SettingKeys.LeagueId, "poe1.Standard");
 
-        if (initializationTask == null)
-        {
-            var serviceProvider = ctx.Services.GetRequiredService<IServiceProvider>();
-            initializationTask = Initialize(serviceProvider);
-        }
+        initializationTask ??= Initialize(TestContext.Services);
 
         await initializationTask;
 
-        Parser = ctx.Services.GetRequiredService<IItemParser>();
-        InvariantModifierProvider = ctx.Services.GetRequiredService<IInvariantModifierProvider>();
+        Parser = TestContext.Services.GetRequiredService<IItemParser>();
+        InvariantModifierProvider = TestContext.Services.GetRequiredService<IInvariantModifierProvider>();
     }
 
     private static async Task Initialize(IServiceProvider serviceProvider)
@@ -64,14 +62,8 @@ public class ParserFixture : IAsyncLifetime
         await cache.Clear();
 
         var logger = serviceProvider.GetRequiredService<ILogger<ParserFixture>>();
-        foreach (var serviceType in SidekickConfiguration.InitializableServices)
+        foreach (var initializableService in serviceProvider.GetServices<IInitializableService>())
         {
-            var service = serviceProvider.GetRequiredService(serviceType);
-            if (service is not IInitializableService initializableService)
-            {
-                continue;
-            }
-
             logger.LogInformation($"[Initialization] Initializing {initializableService.GetType().FullName}");
             await initializableService.Initialize();
         }
