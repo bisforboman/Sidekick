@@ -9,7 +9,7 @@ using Sidekick.Common.Game.Items;
 
 namespace Sidekick.Apis.Poe.Parser.Modifiers;
 
-public class ModifierParser
+public class ModifierParser_Old
 (
     IModifierProvider modifierProvider,
     IFuzzyService fuzzyService

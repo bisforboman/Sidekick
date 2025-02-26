@@ -54,7 +54,8 @@ public static class StartupExtensions
         services.AddSingleton<ILeagueProvider, LeagueProvider>();
         services.AddSingleton<ITradeFilterService, TradeFilterService>();
         services.AddSingleton<IBulkTradeService, BulkTradeService>();
-        services.AddSingleton<IModifierParser, ModifierParser>();
+        services.AddKeyedSingleton<IModifierParser, ModifierParser_Old>("Old");
+        // services.AddKeyedSingleton<IModifierParser, ModifierParser_Old>("Old");
         services.AddSingleton<ClusterJewelParser>();
         services.AddSingleton<IFuzzyService, FuzzyService>();
 
