@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32505.173
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -72,6 +72,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sidekick.Common.Updater", "src\Sidekick.Common.Updater\Sidekick.Common.Updater.csproj", "{2F2F03B3-213A-40D7-B818-8E618DDF01AF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sidekick.Common.Interprocess", "src\Sidekick.Common.Interprocess\Sidekick.Common.Interprocess.csproj", "{A67AD8EA-BA32-4BF1-9533-B8AAD23820E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmark", "tests\Benchmark\Benchmark.csproj", "{9AF08CC5-9BAA-4174-B51C-2AF95F6F863D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -257,6 +259,14 @@ Global
 		{A67AD8EA-BA32-4BF1-9533-B8AAD23820E9}.Linux-Release|Any CPU.Build.0 = Debug|Any CPU
 		{A67AD8EA-BA32-4BF1-9533-B8AAD23820E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A67AD8EA-BA32-4BF1-9533-B8AAD23820E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AF08CC5-9BAA-4174-B51C-2AF95F6F863D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AF08CC5-9BAA-4174-B51C-2AF95F6F863D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AF08CC5-9BAA-4174-B51C-2AF95F6F863D}.Linux-Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AF08CC5-9BAA-4174-B51C-2AF95F6F863D}.Linux-Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AF08CC5-9BAA-4174-B51C-2AF95F6F863D}.Linux-Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AF08CC5-9BAA-4174-B51C-2AF95F6F863D}.Linux-Release|Any CPU.Build.0 = Debug|Any CPU
+		{9AF08CC5-9BAA-4174-B51C-2AF95F6F863D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AF08CC5-9BAA-4174-B51C-2AF95F6F863D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -281,6 +291,7 @@ Global
 		{F5B003D8-BE39-419A-A02A-4328A4FBDD10} = {E4920CFB-0EED-44B1-AC8D-8F5ECBCB7788}
 		{2F2F03B3-213A-40D7-B818-8E618DDF01AF} = {E4920CFB-0EED-44B1-AC8D-8F5ECBCB7788}
 		{A67AD8EA-BA32-4BF1-9533-B8AAD23820E9} = {E4920CFB-0EED-44B1-AC8D-8F5ECBCB7788}
+		{9AF08CC5-9BAA-4174-B51C-2AF95F6F863D} = {1D8BF515-81E9-4769-9B27-24DFB8D8BDCC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {17B5631D-95B3-4007-BE6B-C9BBE799D014}
