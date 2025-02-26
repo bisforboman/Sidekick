@@ -93,8 +93,7 @@ public class ModifierProvider
         {
             entry.Text = RemoveSquareBrackets(entry.Text);
 
-            var options = entry.Option?.Options ?? [];
-            if (options.Count > 0)
+            if (entry.Option?.Options is { Count: > 0 } options)
             {
                 foreach (var option in options)
                 {
@@ -108,7 +107,7 @@ public class ModifierProvider
                     {
                         Category = modifierCategory,
                         Id = entry.Id,
-                        IsOption = options.Any(),
+                        IsOption = true,
                         Text = ComputeOptionText(entry.Text, optionText),
                         FuzzyText = ComputeFuzzyText(modifierCategory, entry.Text, optionText),
                         Pattern = ComputePattern(entry.Text, modifierCategory, optionText),
@@ -122,7 +121,7 @@ public class ModifierProvider
                 {
                     Category = modifierCategory,
                     Id = entry.Id,
-                    IsOption = options.Any(),
+                    IsOption = false,
                     Text = entry.Text,
                     FuzzyText = ComputeFuzzyText(modifierCategory, entry.Text),
                     Pattern = ComputePattern(entry.Text, modifierCategory)
@@ -169,7 +168,7 @@ public class ModifierProvider
             });
         }
 
-        var ids = specialPatterns.Select(x => x.Id).Distinct().ToList();
+        var ids = specialPatterns.Select(x => x.Id).ToHashSet();
         pseudoPatterns.RemoveAll(x => ids.Contains(x.Id));
         pseudoPatterns.AddRange(specialPatterns);
     }
