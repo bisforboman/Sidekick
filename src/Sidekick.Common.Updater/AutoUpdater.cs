@@ -38,6 +38,12 @@ public class AutoUpdater : IAutoUpdater
 
     public async Task<UpdateInfo?> CheckForUpdates()
     {
+        if (!Manager.IsInstalled)
+        {
+            logger.LogInformation("[AutoUpdater] UpdateManager is not installed.");
+            return null;
+        }
+
         logger.LogInformation("[AutoUpdater] Checking for updates.");
         var updateInfo = await Manager.CheckForUpdatesAsync();
         if (updateInfo == null)
@@ -52,6 +58,12 @@ public class AutoUpdater : IAutoUpdater
 
     public async Task UpdateAndRestart(UpdateInfo updateInfo)
     {
+        if (!Manager.IsInstalled)
+        {
+            logger.LogWarning("[AutoUpdater] UpdateManager is not installed.");
+            return;
+        }
+
         // download new version
         logger.LogInformation("[AutoUpdater] Downloading updates.");
         await Manager.DownloadUpdatesAsync(updateInfo);
