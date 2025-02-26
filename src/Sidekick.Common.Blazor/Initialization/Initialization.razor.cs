@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Sidekick.Common.Cache;
@@ -64,7 +63,11 @@ public partial class Initialization : SidekickView
         try
         {
             Completed = 0;
-            Count = InitializableServices.Count();
+            var initializableServices = InitializableServices
+                .OrderBy(x => x.Priority)
+                .ToList();
+
+            Count = initializableServices.Count;
             var version = ApplicationService.GetVersion();
             var previousVersion = await SettingsService.GetString(SettingKeys.Version);
             if (version != previousVersion)
@@ -76,7 +79,7 @@ public partial class Initialization : SidekickView
             // Report initial progress
             await ReportProgress();
 
-            foreach (var service in InitializableServices.OrderBy(x => x.Priority))
+            foreach (var service in initializableServices)
             {
                 Logger.LogInformation($"[Initialization] Initializing {service.GetType().FullName}");
                 await service.Initialize();
