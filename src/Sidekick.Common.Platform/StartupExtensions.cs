@@ -3,7 +3,6 @@ using Sidekick.Common.Platform.Clipboard;
 using Sidekick.Common.Platform.GameLogs;
 using Sidekick.Common.Platform.Keyboards;
 using Sidekick.Common.Platform.Localization;
-using Sidekick.Common.Platform.Windows;
 using Sidekick.Common.Platform.Windows.Processes;
 
 namespace Sidekick.Common.Platform;
