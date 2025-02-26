@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -15,7 +16,7 @@ public class ModifierParser
     IFuzzyService fuzzyService
 ) : IModifierParser
 {
-    private readonly Regex CleanOriginalTextPattern = new(" \\((?:implicit|enchant|crafted|veiled|fractured|scourge|crucible)\\)$");
+    private static readonly Regex CleanOriginalTextPattern = new(" \\((?:implicit|enchant|crafted|veiled|fractured|scourge|crucible)\\)$");
 
     /// <inheritdoc/>
     public List<ModifierLine> Parse(ParsingItem parsingItem)
@@ -26,7 +27,7 @@ public class ModifierParser
         }
 
         return MatchModifiers(parsingItem)
-            .Select(modifierMatch => CreateModifierLine(modifierMatch, parsingItem))
+            .Select(CreateModifierLine)
             // Trim modifier lines
             .Where(x => x.Modifiers.Count > 0)
             // Order the mods by the order they appear on the item.
@@ -34,7 +35,7 @@ public class ModifierParser
             .ToList();
     }
 
-    private ModifierLine CreateModifierLine(ModifierMatch match, ParsingItem parsingItem)
+    private ModifierLine CreateModifierLine(ModifierMatch match)
     {
         var text = CreateString(match);
         var modifierLine = new ModifierLine(CleanOriginalTextPattern.Replace(text, string.Empty));
@@ -42,34 +43,29 @@ public class ModifierParser
         var fuzzyLine = fuzzyService.CleanFuzzyText(text);
         var patterns = match.Patterns.OrderByDescending(x => Fuzz.Ratio(fuzzyLine, x.FuzzyText)).ToList();
 
-        if (parsingItem.Header?.Category is Category.Sanctum)
-        {
-            patterns.RemoveAll(pattern => pattern.Category is not ModifierCategory.Sanctum);
-        }
-
-        if (parsingItem.Header?.Category is Category.Map && parsingItem.Header.ItemCategory is "map.tablet")
-        {
-            patterns.RemoveAll(pattern => pattern.Category is not (ModifierCategory.Implicit or ModifierCategory.Explicit));
-        }
-
         foreach (var pattern in patterns)
         {
             if (!modifierLine.Modifiers.Any(x => x.Id == pattern.Id))
             {
-                modifierLine.Modifiers.Add(new(text: pattern.Text)
+                modifierLine.Modifiers.Add(new()
                 {
+                    Text = pattern.Text,
                     Id = pattern.Id,
                     Category = pattern.Category,
                 });
             }
         }
 
-        if (modifierLine.Modifiers.All(x => x.Category == ModifierCategory.Pseudo))
+        if (modifierLine.Modifiers.All(x => x.Category is ModifierCategory.Pseudo))
         {
             modifierLine.Text = modifierLine.Modifiers.FirstOrDefault()?.Text ?? modifierLine.Text;
         }
 
-        ParseModifierValue(modifierLine, patterns.FirstOrDefault());
+        if (patterns is [var firstPattern, ..])
+        {
+            ParseModifierValue(modifierLine, firstPattern);
+        }
+
         return modifierLine;
     }
 
@@ -78,7 +74,7 @@ public class ModifierParser
         var text = new StringBuilder();
         foreach (var line in match.Lines)
         {
-            if (text.Length != 0)
+            if (text.Length is not 0)
             {
                 text.Append('\n');
             }
@@ -102,13 +98,7 @@ public class ModifierParser
                     continue;
                 }
 
-                var patterns = MatchModifierPatterns(block, line, lineIndex).ToList();
-                if (patterns.Count == 0)
-                {
-                    // If we reach this point we have not found the modifier through traditional Regex means.
-                    // Text from the game sometimes differ from the text from the API. We do a fuzzy search here to find the most common text.
-                    patterns = [.. MatchModifierFuzzily(line)];
-                }
+                var patterns = GetPatterns(line, block, lineIndex, parsingItem);
 
                 if (patterns.Count is 0)
                 {
@@ -117,16 +107,32 @@ public class ModifierParser
 
                 var maxLineCount = patterns.Max(x => x.LineCount);
                 lineIndex += maxLineCount - 1; // Increment the line index by one less of the pattern count. The default lineIndex++ will take care of the remaining increment.
-                yield return new ModifierMatch(block, block.Lines.Skip(lineIndex).Take(maxLineCount), patterns);
+                yield return new ModifierMatch(block, [.. block.Lines.Skip(lineIndex).Take(maxLineCount)], patterns);
             }
         }
     }
 
-    private IEnumerable<ModifierPattern> MatchModifierPatterns(ParsingBlock block, ParsingLine line, int lineIndex)
+    private IReadOnlyCollection<ModifierPattern> GetPatterns(ParsingLine line, ParsingBlock block, int lineIndex, ParsingItem parsingItem)
     {
-        foreach (var pattern in modifierProvider.Patterns.SelectMany(x => x.Value))
+        var allAvailablePatterns = GetAllAvailablePatterns(parsingItem);
+        IReadOnlyCollection<ModifierPattern> patterns = [ .. MatchModifierPatterns(line, block, lineIndex, allAvailablePatterns)];
+
+        if (patterns.Count is not 0)
         {
-            var isMultilineModifierMatch = pattern.LineCount > 1 && pattern.Pattern.IsMatch(string.Join('\n', block.Lines.Skip(lineIndex).Take(pattern.LineCount)));
+            return patterns;
+        }
+
+        // If we reach this point we have not found the modifier through traditional Regex means.
+        // Text from the game sometimes differ from the text from the API. We do a fuzzy search here to find the most common text.
+        return [ .. MatchModifierFuzzily(line, allAvailablePatterns)];
+    }
+
+    private static IEnumerable<ModifierPattern> MatchModifierPatterns(ParsingLine line, ParsingBlock block, int lineIndex, IReadOnlyCollection<ModifierPattern> allAvailablePatterns)
+    {
+        var remainingLines = block.Lines.Skip(lineIndex);
+        foreach (var pattern in allAvailablePatterns)
+        {
+            var isMultilineModifierMatch = pattern.LineCount > 1 && pattern.Pattern.IsMatch(string.Join('\n', remainingLines.Take(pattern.LineCount)));
             var isSingleModifierMatch = pattern.Pattern.IsMatch(line.Text);
 
             if (isMultilineModifierMatch || isSingleModifierMatch)
@@ -136,40 +142,50 @@ public class ModifierParser
         }
     }
 
-    private IEnumerable<ModifierPattern> MatchModifierFuzzily(ParsingLine line)
+    private IEnumerable<ModifierPattern> MatchModifierFuzzily(ParsingLine line, IReadOnlyCollection<ModifierPattern> allAvailablePatterns)
     {
-        if (line.Parsed)
-        {
-            yield break;
-        }
-
-        var fuzzyLine = fuzzyService.CleanFuzzyText(line.Text);
-
-        var results = new List<(int Ratio, ModifierPattern Pattern)>();
-        var resultsLock = new object(); // Lock object to synchronize access to results
-
-        Parallel.ForEach(modifierProvider.Patterns.SelectMany(x => x.Value),
-                         (x) =>
-                         {
-                             var ratio = Fuzz.Ratio(fuzzyLine, x.FuzzyText, FuzzySharp.PreProcess.PreprocessMode.None);
-                             if (ratio <= 75)
-                             {
-                                 return;
-                             }
-
-                             lock (resultsLock) // Lock before accessing the shared list
-                             {
-                                 results.Add((ratio, x));
-                             }
-                         });
-
-        foreach (var (ratio, pattern) in results.OrderByDescending(x => x.Ratio))
+        foreach (var (ratio, pattern) in GetReliablePatterns(line, allAvailablePatterns).OrderByDescending(x => x.Ratio))
         {
             yield return pattern;
         }
     }
 
-    private static void ParseModifierValue(ModifierLine modifierLine, ModifierPattern? pattern)
+    private ConcurrentBag<(int Ratio, ModifierPattern Pattern)> GetReliablePatterns(ParsingLine line, IReadOnlyCollection<ModifierPattern> allAvailablePatterns)
+    {
+        var results = new ConcurrentBag<(int Ratio, ModifierPattern Pattern)>();
+        var fuzzyLine = fuzzyService.CleanFuzzyText(line.Text);
+        Parallel.ForEach(
+            allAvailablePatterns,
+            (x) =>
+            {
+                var ratio = Fuzz.Ratio(fuzzyLine, x.FuzzyText, FuzzySharp.PreProcess.PreprocessMode.None);
+
+                if (ratio > 75)
+                {
+                    results.Add((ratio, x));
+                }
+            });
+
+        return results;
+    }
+
+    private IReadOnlyCollection<ModifierPattern> GetAllAvailablePatterns(ParsingItem parsingItem)
+    {
+        if (parsingItem.Header?.Category is Category.Sanctum)
+        {
+            return [ .. modifierProvider.Patterns[ModifierCategory.Sanctum]];
+        }
+
+        if (parsingItem.Header?.Category is Category.Map && parsingItem.Header.ItemCategory is "map.tablet")
+        {
+            return [ .. modifierProvider.Patterns[ModifierCategory.Implicit],
+                     .. modifierProvider.Patterns[ModifierCategory.Explicit]];
+        }
+
+        return [ .. modifierProvider.Patterns.SelectMany(x => x.Value)];
+    }
+
+    private static void ParseModifierValue(ModifierLine modifierLine, ModifierPattern pattern)
     {
         switch (pattern)
         {
@@ -180,17 +196,21 @@ public class ModifierParser
             case { Value: int value }:
                 modifierLine.Values.Add(value);
                 return;
-            
-            case null: 
+
+            default:
+                modifierLine.Values.AddRange(CreateDoubles(modifierLine.Text));
                 return;
         }
+    }
 
-        var matches = new Regex("([-+0-9,.]+)").Matches(modifierLine.Text);
+    private static IEnumerable<double> CreateDoubles(string text)
+    {
+        var matches = new Regex("([-+0-9,.]+)").Matches(text);
         foreach (Match match in matches)
         {
             if (double.TryParse(match.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var parsedValue))
             {
-                modifierLine.Values.Add(parsedValue);
+                yield return parsedValue;
             }
         }
     }

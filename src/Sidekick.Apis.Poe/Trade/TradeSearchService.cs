@@ -585,8 +585,9 @@ public class TradeSearchService
             {
                 Modifiers =
                 [
-                    new Modifier(text: text)
+                    new()
                     {
+                        Text = text,
                         Id = id,
                         Category = modifierProvider.GetModifierCategory(id),
                         Tier = mod?.Tier,
