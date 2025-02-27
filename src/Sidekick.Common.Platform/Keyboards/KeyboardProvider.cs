@@ -138,6 +138,8 @@ public class KeyboardProvider : IKeyboardProvider, IDisposable
     [
     ];
 
+    public HashSet<string?> UsedKeybinds => [ .. KeybindHandlers.SelectMany(k => k.Keybinds)];
+
     /// <inheritdoc/>
     public int Priority => 100;
 
