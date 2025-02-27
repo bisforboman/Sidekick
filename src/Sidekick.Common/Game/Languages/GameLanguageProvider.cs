@@ -17,6 +17,8 @@ public class GameLanguageProvider(ISettingsService settingsService) : IGameLangu
     /// <inheritdoc />
     public int Priority => 0;
 
+    public bool IsInitialized { get; }
+
     /// <inheritdoc />
     public async Task Initialize()
     {

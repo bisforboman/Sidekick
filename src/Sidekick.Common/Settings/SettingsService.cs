@@ -16,6 +16,8 @@ public class SettingsService(
 
     public int Priority { get; set; } = int.MinValue;
 
+    public bool IsInitialized { get; }
+
     public async Task Initialize()
     {
         // If the language is Chinese, we are forcing the use invariant trade results flag.

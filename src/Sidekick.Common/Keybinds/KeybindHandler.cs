@@ -32,6 +32,8 @@ public abstract class KeybindHandler : IInitializableService
 
     public int Priority => 0;
 
+    public bool IsInitialized { get; }
+
     public async Task Initialize()
     {
         Keybinds = await GetKeybinds();

@@ -20,6 +20,8 @@ public class UiLanguageProvider(ISettingsService settingsService) : IUiLanguageP
     /// <inheritdoc />
     public int Priority => 0;
 
+    public bool IsInitialized { get; }
+
     /// <inheritdoc />
     public async Task Initialize()
     {

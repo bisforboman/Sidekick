@@ -40,6 +40,8 @@ public class PropertyParser
 
     private Regex? AreaLevel { get; set; }
 
+    public bool IsInitialized { get; }
+
     public async Task Initialize()
     {
         var leagueId = await settingsService.GetString(SettingKeys.LeagueId);

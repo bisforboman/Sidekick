@@ -52,6 +52,8 @@ public class ModifierProvider
     /// <inheritdoc/>
     public int Priority => 200;
 
+    public bool IsInitialized { get; }
+
     /// <inheritdoc/>
     public async Task Initialize()
     {
