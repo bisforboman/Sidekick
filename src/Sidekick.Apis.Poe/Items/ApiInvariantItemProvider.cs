@@ -12,14 +12,31 @@ using Sidekick.Common.Settings;
 namespace Sidekick.Apis.Poe.Items;
 
 public class ApiInvariantItemProvider
-(
-    ICacheProvider cacheProvider,
-    IPoeTradeClient poeTradeClient,
-    ILogger<ApiInvariantItemProvider> logger,
-    IGameLanguageProvider gameLanguageProvider,
-    ISettingsService settingsService
-) : IApiInvariantItemProvider
+: IApiInvariantItemProvider
 {
+    private readonly ICacheProvider cacheProvider;
+    private readonly IPoeTradeClient poeTradeClient;
+    private readonly ILogger<ApiInvariantItemProvider> logger;
+    private readonly IGameLanguageProvider gameLanguageProvider;
+    private readonly ISettingsService settingsService;
+
+    public ApiInvariantItemProvider(
+        ICacheProvider cacheProvider,
+        IPoeTradeClient poeTradeClient,
+        ILogger<ApiInvariantItemProvider> logger,
+        IGameLanguageProvider gameLanguageProvider,
+        ISettingsService settingsService
+)
+    {
+        this.cacheProvider = cacheProvider;
+        this.poeTradeClient = poeTradeClient;
+        this.logger = logger;
+        this.gameLanguageProvider = gameLanguageProvider;
+        this.settingsService = settingsService;
+
+        Initialization = Initialize();
+    }
+
     public Dictionary<string, ApiItem> IdDictionary { get; } = new();
 
     public List<string> UncutGemIds { get; } = [];
@@ -27,10 +44,10 @@ public class ApiInvariantItemProvider
     /// <inheritdoc/>
     public int Priority => 100;
 
-    public bool IsInitialized { get; }
+    public Task Initialization { get; }
 
     /// <inheritdoc/>
-    public async Task Initialize()
+    private async Task Initialize()
     {
         IdDictionary.Clear();
 

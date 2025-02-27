@@ -88,7 +88,7 @@ public partial class Initialization : SidekickView
             foreach (var service in services)
             {
                 Logger.LogInformation($"[Initialization] Initializing {service.GetType().FullName}");
-                await service.Initialize();
+                await service.Initialization;
                 Completed += 1;
                 await ReportProgress();
             }

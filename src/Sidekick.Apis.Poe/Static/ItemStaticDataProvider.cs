@@ -10,13 +10,28 @@ using Sidekick.Common.Settings;
 namespace Sidekick.Apis.Poe.Static;
 
 public class ItemStaticDataProvider
-(
-    ICacheProvider cacheProvider,
-    IPoeTradeClient poeTradeClient,
-    IGameLanguageProvider gameLanguageProvider,
-    ISettingsService settingsService
-) : IItemStaticDataProvider
+: IItemStaticDataProvider
 {
+    private readonly ICacheProvider cacheProvider;
+    private readonly IPoeTradeClient poeTradeClient;
+    private readonly IGameLanguageProvider gameLanguageProvider;
+    private readonly ISettingsService settingsService;
+
+    public ItemStaticDataProvider(
+        ICacheProvider cacheProvider,
+        IPoeTradeClient poeTradeClient,
+        IGameLanguageProvider gameLanguageProvider,
+        ISettingsService settingsService
+)
+    {
+        this.cacheProvider = cacheProvider;
+        this.poeTradeClient = poeTradeClient;
+        this.gameLanguageProvider = gameLanguageProvider;
+        this.settingsService = settingsService;
+
+        Initialization = Initialize();
+    }
+
     private Dictionary<string, StaticItem> ByIds { get; } = new();
 
     private Dictionary<string, StaticItem> ByTexts { get; } = new();
@@ -24,10 +39,10 @@ public class ItemStaticDataProvider
     /// <inheritdoc/>
     public int Priority => 100;
 
-    public bool IsInitialized { get; }
+    public Task Initialization { get; }
 
     /// <inheritdoc/>
-    public async Task Initialize()
+    private async Task Initialize()
     {
         var leagueId = await settingsService.GetString(SettingKeys.LeagueId);
         var game = leagueId.GetGameFromLeagueId();

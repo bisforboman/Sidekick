@@ -9,12 +9,7 @@ public class WebApplicationService : IApplicationService
 
     public int Priority => 9000;
 
-    public bool IsInitialized { get; }
-
-    public Task Initialize()
-    {
-        return Task.CompletedTask;
-    }
+    public Task Initialization { get; } = Task.CompletedTask;
 
     public void Shutdown()
     {

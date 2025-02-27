@@ -14,14 +14,31 @@ using Sidekick.Common.Settings;
 namespace Sidekick.Apis.Poe.Parser.Properties;
 
 public class PropertyParser
-(
-    IGameLanguageProvider gameLanguageProvider,
-    IInvariantModifierProvider invariantModifierProvider,
-    IApiInvariantItemProvider apiInvariantItemProvider,
-    ISettingsService settingsService,
-    IStringLocalizer<FilterResources> filterLocalizer
-) : IPropertyParser
+: IPropertyParser
 {
+    private readonly IGameLanguageProvider gameLanguageProvider;
+    private readonly IInvariantModifierProvider invariantModifierProvider;
+    private readonly IApiInvariantItemProvider apiInvariantItemProvider;
+    private readonly ISettingsService settingsService;
+    private readonly IStringLocalizer<FilterResources> filterLocalizer;
+
+    public PropertyParser(
+        IGameLanguageProvider gameLanguageProvider,
+        IInvariantModifierProvider invariantModifierProvider,
+        IApiInvariantItemProvider apiInvariantItemProvider,
+        ISettingsService settingsService,
+        IStringLocalizer<FilterResources> filterLocalizer
+)
+    {
+        this.gameLanguageProvider = gameLanguageProvider;
+        this.invariantModifierProvider = invariantModifierProvider;
+        this.apiInvariantItemProvider = apiInvariantItemProvider;
+        this.settingsService = settingsService;
+        this.filterLocalizer = filterLocalizer;
+
+        Initialization = Initialize();
+    }
+
     public int Priority => 200;
 
     private List<PropertyDefinition> Definitions { get; set; } = new();
@@ -40,9 +57,9 @@ public class PropertyParser
 
     private Regex? AreaLevel { get; set; }
 
-    public bool IsInitialized { get; }
+    public Task Initialization { get; }
 
-    public async Task Initialize()
+    private async Task Initialize()
     {
         var leagueId = await settingsService.GetString(SettingKeys.LeagueId);
         var game = leagueId.GetGameFromLeagueId();

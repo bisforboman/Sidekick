@@ -11,6 +11,7 @@ public abstract class KeybindHandler : IInitializableService
     protected KeybindHandler(ISettingsService settingsService)
     {
         settingsService.OnSettingsChanged += OnSettingsChanged;
+        Initialization = Initialize();
     }
 
     private void OnSettingsChanged()
@@ -32,9 +33,9 @@ public abstract class KeybindHandler : IInitializableService
 
     public int Priority => 0;
 
-    public bool IsInitialized { get; }
+    public Task Initialization { get; }
 
-    public async Task Initialize()
+    private async Task Initialize()
     {
         Keybinds = await GetKeybinds();
     }

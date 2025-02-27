@@ -9,13 +9,28 @@ using Sidekick.Common.Settings;
 namespace Sidekick.Apis.Poe.Modifiers;
 
 public class InvariantModifierProvider
-(
-    ICacheProvider cacheProvider,
-    IPoeTradeClient poeTradeClient,
-    IGameLanguageProvider gameLanguageProvider,
-    ISettingsService settingsService
-) : IInvariantModifierProvider
+: IInvariantModifierProvider
 {
+    private readonly ICacheProvider cacheProvider;
+    private readonly IPoeTradeClient poeTradeClient;
+    private readonly IGameLanguageProvider gameLanguageProvider;
+    private readonly ISettingsService settingsService;
+
+    public InvariantModifierProvider(
+        ICacheProvider cacheProvider,
+        IPoeTradeClient poeTradeClient,
+        IGameLanguageProvider gameLanguageProvider,
+        ISettingsService settingsService
+)
+    {
+        this.cacheProvider = cacheProvider;
+        this.poeTradeClient = poeTradeClient;
+        this.gameLanguageProvider = gameLanguageProvider;
+        this.settingsService = settingsService;
+
+        Initialization = Initialize();
+    }
+
     public List<string> IncursionRoomModifierIds { get; } = [];
 
     public List<string> LogbookFactionModifierIds { get; } = [];
@@ -35,10 +50,10 @@ public class InvariantModifierProvider
     /// <inheritdoc/>
     public int Priority => 100;
 
-    public bool IsInitialized { get; }
+    public Task Initialization { get; }
 
     /// <inheritdoc/>
-    public async Task Initialize()
+    private async Task Initialize()
     {
         var result = await GetList();
         InitializeIncursionRooms(result);

@@ -14,7 +14,5 @@ public interface IInitializableService
     ///     Initializes the service during startup.
     /// </summary>
     /// <returns>A task.</returns>
-    Task Initialize();
-
-    bool IsInitialized { get; }
+    Task Initialization { get; }
 }

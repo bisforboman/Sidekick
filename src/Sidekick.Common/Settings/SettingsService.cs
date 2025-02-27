@@ -8,17 +8,27 @@ using Sidekick.Common.Enums;
 
 namespace Sidekick.Common.Settings;
 
-public class SettingsService(
-    DbContextOptions<SidekickDbContext> dbContextOptions,
-    ILogger<SettingsService> logger) : ISettingsService
+public class SettingsService : ISettingsService
 {
+    private readonly DbContextOptions<SidekickDbContext> dbContextOptions;
+    private readonly ILogger<SettingsService> logger;
+
+    public SettingsService(
+        DbContextOptions<SidekickDbContext> dbContextOptions,
+        ILogger<SettingsService> logger)
+    {
+        this.dbContextOptions = dbContextOptions;
+        this.logger = logger;
+        Initialization = Initialize();
+    }
+
     public event Action? OnSettingsChanged;
 
     public int Priority { get; set; } = int.MinValue;
 
-    public bool IsInitialized { get; }
+    public Task Initialization { get; }
 
-    public async Task Initialize()
+    private async Task Initialize()
     {
         // If the language is Chinese, we are forcing the use invariant trade results flag.
         var useInvariantTradeResults = await GetBool(SettingKeys.UseInvariantTradeResults);

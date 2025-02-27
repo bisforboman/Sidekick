@@ -7,21 +7,34 @@ using Sidekick.Common.Settings;
 namespace Sidekick.Apis.Poe.Parser.Pseudo;
 
 public class PseudoParser
-(
-    IInvariantModifierProvider invariantModifierProvider,
-    IModifierProvider modifierProvider,
-    ISettingsService settingsService
-) : IPseudoParser
+: IPseudoParser
 {
+    private readonly IInvariantModifierProvider invariantModifierProvider;
+    private readonly IModifierProvider modifierProvider;
+    private readonly ISettingsService settingsService;
+
+    public PseudoParser(
+        IInvariantModifierProvider invariantModifierProvider,
+        IModifierProvider modifierProvider,
+        ISettingsService settingsService
+)
+    {
+        this.invariantModifierProvider = invariantModifierProvider;
+        this.modifierProvider = modifierProvider;
+        this.settingsService = settingsService;
+
+        Initialization = Initialize();
+    }
+
     private List<PseudoDefinition> Definitions { get; } = new();
 
     /// <inheritdoc/>
     public int Priority => 200;
 
-    public bool IsInitialized { get; }
+    public Task Initialization { get; }
 
     /// <inheritdoc/>
-    public async Task Initialize()
+    private async Task Initialize()
     {
         var leagueId = await settingsService.GetString(SettingKeys.LeagueId);
         var game = leagueId.GetGameFromLeagueId();

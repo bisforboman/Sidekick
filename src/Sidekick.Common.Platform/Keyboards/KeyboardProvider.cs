@@ -10,10 +10,7 @@ using Sidekick.Common.Keybinds;
 
 namespace Sidekick.Common.Platform.Keyboards;
 
-public class KeyboardProvider(
-    ILogger<KeyboardProvider> logger,
-    IServiceProvider serviceProvider,
-    IProcessProvider processProvider) : IKeyboardProvider, IDisposable
+public class KeyboardProvider : IKeyboardProvider, IDisposable
 {
     private static readonly Dictionary<KeyCode, string> keyMappings = new()
     {
@@ -144,10 +141,10 @@ public class KeyboardProvider(
     /// <inheritdoc/>
     public int Priority => 100;
 
-    public bool IsInitialized { get; }
+    public Task Initialization { get; }
 
     /// <inheritdoc/>
-    public Task Initialize()
+    private Task Initialize()
     {
         if (Debugger.IsAttached)
         {
@@ -188,6 +185,20 @@ public class KeyboardProvider(
     }
 
     private readonly Regex ignoreHookLogs = new Regex("(?:dispatch_mouse_move|hook_get_multi_click_time|dispatch_event|win_hook_event_proc|dispatch_mouse_wheel|dispatch_button_press|dispatch_button_release)", RegexOptions.Compiled);
+    private readonly ILogger<KeyboardProvider> logger;
+    private readonly IServiceProvider serviceProvider;
+    private readonly IProcessProvider processProvider;
+
+    public KeyboardProvider(
+        ILogger<KeyboardProvider> logger,
+        IServiceProvider serviceProvider,
+        IProcessProvider processProvider)
+    {
+        this.logger = logger;
+        this.serviceProvider = serviceProvider;
+        this.processProvider = processProvider;
+        Initialization = Initialize();
+    }
 
     private void OnMessageLogged(
         object? sender,

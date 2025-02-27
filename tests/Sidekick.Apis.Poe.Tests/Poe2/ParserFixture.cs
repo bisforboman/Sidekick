@@ -91,7 +91,7 @@ public class ParserFixture : IAsyncLifetime
             }
 
             logger.LogInformation($"[Initialization] Initializing {initializableService.GetType().FullName}");
-            await initializableService.Initialize();
+            await initializableService.Initialization;
         }
     }
 }
