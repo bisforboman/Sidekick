@@ -5,20 +5,7 @@ namespace Sidekick.Apis.Poe.Parser.Requirements;
 
 public class RequirementsParser(IGameLanguageProvider gameLanguageProvider) : IRequirementsParser
 {
-    /// <inheritdoc/>
-    public int Priority => 100;
-
-    public bool IsInitialized { get; }
-
-    private Regex Pattern { get; set; } = null!;
-
-    /// <inheritdoc/>
-    public Task Initialize()
-    {
-        Pattern = gameLanguageProvider.Language.DescriptionRequirements.ToRegexLine();
-
-        return Task.CompletedTask;
-    }
+    private Regex Pattern { get; } = gameLanguageProvider.Language.DescriptionRequirements.ToRegexLine();
 
     public void Parse(ParsingItem parsingItem)
     {
