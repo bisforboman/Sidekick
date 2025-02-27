@@ -28,6 +28,8 @@ public class ApiItemProvider
     /// <inheritdoc/>
     public int Priority => 100;
 
+    public bool IsInitialized { get; }
+
     /// <inheritdoc/>
     public async Task Initialize()
     {

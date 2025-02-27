@@ -8,6 +8,8 @@ public class RequirementsParser(IGameLanguageProvider gameLanguageProvider) : IR
     /// <inheritdoc/>
     public int Priority => 100;
 
+    public bool IsInitialized { get; }
+
     private Regex Pattern { get; set; } = null!;
 
     /// <inheritdoc/>

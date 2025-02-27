@@ -127,6 +127,8 @@ public class ProcessProvider
     /// <inheritdoc/>
     public int Priority => 0;
 
+    public bool IsInitialized { get; }
+
     /// <inheritdoc/>
     public Task Initialize()
     {

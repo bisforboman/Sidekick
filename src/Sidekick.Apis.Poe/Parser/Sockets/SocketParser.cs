@@ -8,6 +8,8 @@ public class SocketParser(IGameLanguageProvider gameLanguageProvider) : ISocketP
 {
     public int Priority => 100;
 
+    public bool IsInitialized { get; }
+
     public Task Initialize()
     {
         // We need 6 capturing groups as it is possible for a 6 socket unlinked item to exist

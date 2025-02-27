@@ -26,6 +26,8 @@ public class HeaderParser
 {
     public int Priority => 200;
 
+    public bool IsInitialized { get; }
+
     private Regex Affixes { get; set; } = null!;
 
     private Regex SuperiorAffix { get; set; } = null!;

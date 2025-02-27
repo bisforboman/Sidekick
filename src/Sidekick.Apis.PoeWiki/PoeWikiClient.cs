@@ -70,6 +70,8 @@ public class PoeWikiClient
     /// <inheritdoc/>
     public int Priority => 0;
 
+    public bool IsInitialized { get; }
+
     /// <inheritdoc/>
     public async Task Initialize()
     {

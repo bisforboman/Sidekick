@@ -144,6 +144,8 @@ public class KeyboardProvider(
     /// <inheritdoc/>
     public int Priority => 100;
 
+    public bool IsInitialized { get; }
+
     /// <inheritdoc/>
     public Task Initialize()
     {

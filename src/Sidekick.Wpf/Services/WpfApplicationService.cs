@@ -24,6 +24,8 @@ public class WpfApplicationService
 
     public int Priority => 9000;
 
+    public bool IsInitialized { get; }
+
     public Task Initialize()
     {
         if (Initialized)
