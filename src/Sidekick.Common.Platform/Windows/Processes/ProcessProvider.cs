@@ -73,8 +73,6 @@ public class ProcessProvider : IProcessProvider, IDisposable
 
     private bool PermissionChecked { get; set; }
 
-    private bool HasInitialized { get; set; }
-
     private CancellationTokenSource? WindowsHook { get; set; }
 
     private DateTimeOffset PreviousFocusedWindowAttempt { get; set; }
@@ -143,12 +141,6 @@ public class ProcessProvider : IProcessProvider, IDisposable
     /// <inheritdoc/>
     public Task Initialize()
     {
-        // We can't initialize twice
-        if (HasInitialized)
-        {
-            return Task.CompletedTask;
-        }
-
         WindowsHook = EventLoop.Run(WinEvent.EVENT_SYSTEM_FOREGROUND,
                                     WinEvent.EVENT_SYSTEM_CAPTURESTART,
                                     IntPtr.Zero,
@@ -156,7 +148,6 @@ public class ProcessProvider : IProcessProvider, IDisposable
                                     0,
                                     0,
                                     WinEvent.WINEVENT_OUTOFCONTEXT);
-        HasInitialized = true;
 
         return Task.CompletedTask;
     }

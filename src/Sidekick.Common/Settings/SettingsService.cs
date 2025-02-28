@@ -37,6 +37,7 @@ public class SettingsService : ISettingsService
         {
             await SetPrivate(SettingKeys.UseInvariantTradeResults, true);
         }
+        logger.LogInformation("[SettingsService] Settings are initialized.");
     }
 
     public async Task<bool> GetBool(string key)

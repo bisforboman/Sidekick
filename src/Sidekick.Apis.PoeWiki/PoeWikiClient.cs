@@ -88,17 +88,7 @@ public class PoeWikiClient : IPoeWikiClient
     /// <inheritdoc/>
     private async Task Initialize()
     {
-        var result = await cacheProvider.GetOrSet("PoeWikiBlightOils",
-                                                  async () =>
-                                                  {
-                                                      var result = await GetMetadataIdsFromItemNames(oilNames);
-                                                      if (result == null)
-                                                      {
-                                                          return new();
-                                                      }
-
-                                                      return result;
-                                                  }, (cache) => cache.Any());
+        var result = await cacheProvider.GetOrSet("PoeWikiBlightOils", GetMetadataIdsFromItemNames, (cache) => cache.Any());
 
         BlightOilNamesByMetadataIds = result.ToDictionary(x => x.MetadataId ?? string.Empty, x => x.Name ?? string.Empty);
     }
@@ -299,7 +289,7 @@ public class PoeWikiClient : IPoeWikiClient
         return null;
     }
 
-    private async Task<List<ItemNameMetadataIdResult>?> GetMetadataIdsFromItemNames(List<string> itemNames)
+    private async Task<List<ItemNameMetadataIdResult>> GetMetadataIdsFromItemNames()
     {
         try
         {
@@ -310,22 +300,22 @@ public class PoeWikiClient : IPoeWikiClient
                 new("limit", "500"),
                 new("tables", "items"),
                 new("fields", "items.name,items.metadata_id"),
-                new("where", @$"items.name IN ({itemNames.ToQueryString()})"),
+                new("where", @$"items.name IN ({oilNames.ToQueryString()})"),
             };
 
             using var client = GetHttpClient();
             var response = await client.GetAsync(QueryStringHelper.ToQueryString(query));
             var content = await response.Content.ReadAsStreamAsync();
             var result = await JsonSerializer.DeserializeAsync<CargoQueryResult<ItemNameMetadataIdResult>>(content, options);
-            if (result == null)
+            if (result is null)
             {
-                return null;
+                return [];
             }
 
             var list = new List<ItemNameMetadataIdResult>();
             foreach (var queryResult in result.CargoQuery)
             {
-                if (queryResult.Title == null)
+                if (queryResult.Title is null)
                 {
                     continue;
                 }
@@ -340,7 +330,7 @@ public class PoeWikiClient : IPoeWikiClient
             logger.LogWarning(e, "[PoeWiki] Error while trying to get item metadata ids from poewiki.net.");
         }
 
-        return null;
+        return [];
     }
 
     public async Task<Map?> GetMap(string? mapType)

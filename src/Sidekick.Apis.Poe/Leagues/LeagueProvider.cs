@@ -14,8 +14,6 @@ public class LeagueProvider(
     IGameLanguageProvider gameLanguageProvider,
     ILogger<LeagueProvider> logger) : ILeagueProvider
 {
-    private readonly ILogger logger = logger;
-
     public async Task<List<League>> GetList(bool fromCache)
     {
         if (fromCache)
@@ -26,7 +24,7 @@ public class LeagueProvider(
         try
         {
             var result = await FetchAll();
-            await cacheProvider.Set("Leagues", result);
+            cacheProvider.Set("Leagues", result);
             return result;
         }
         catch (Exception e)

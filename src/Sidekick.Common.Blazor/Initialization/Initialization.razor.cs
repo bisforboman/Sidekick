@@ -69,7 +69,7 @@ public partial class Initialization : SidekickView
             var previousVersion = await SettingsService.GetString(SettingKeys.Version);
             if (version != previousVersion)
             {
-                await CacheProvider.Clear();
+                CacheProvider.Clear();
                 await SettingsService.Set(SettingKeys.Version, version);
             }
 

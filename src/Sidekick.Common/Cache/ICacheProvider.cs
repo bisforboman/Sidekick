@@ -12,7 +12,7 @@ public interface ICacheProvider
     /// <param name="key">The key under which to save the cache</param>
     /// <param name="cacheValidator">A function that determines if the data stored in the cache is valid.</param>
     /// <returns>Returns the cache data</returns>
-    Task<TModel?> Get<TModel>(string key, Func<TModel, bool> cacheValidator)
+    TModel? Get<TModel>(string key, Func<TModel, bool> cacheValidator)
         where TModel : class;
 
     /// <summary>
@@ -21,7 +21,7 @@ public interface ICacheProvider
     /// <typeparam name="TModel">THe type of the data</typeparam>
     /// <param name="key">The key under which to save the cache</param>
     /// <param name="data">The data to save in the cache</param>
-    Task Set<TModel>(string key, TModel data)
+    void Set<TModel>(string key, TModel data)
         where TModel : class;
 
     /// <summary>
@@ -44,5 +44,5 @@ public interface ICacheProvider
     /// <summary>
     ///     Clears the cache
     /// </summary>
-    Task Clear();
+    void Clear();
 }

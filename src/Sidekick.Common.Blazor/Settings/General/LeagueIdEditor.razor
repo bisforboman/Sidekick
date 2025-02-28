@@ -65,7 +65,7 @@
 
         if (AutoRefresh && currentGame != newGame)
         {
-            await CacheProvider.Clear();
+            CacheProvider.Clear();
             NavigationManager.NavigateTo("/initialize");
         }
     }

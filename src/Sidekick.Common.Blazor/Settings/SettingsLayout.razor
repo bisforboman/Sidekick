@@ -47,8 +47,9 @@
 
     public async Task ResetCache()
     {
-        await CacheProvider.Clear();
+        CacheProvider.Clear();
         NavigationManager.NavigateTo("/initialize");
+        await Task.CompletedTask;
     }
 
 }

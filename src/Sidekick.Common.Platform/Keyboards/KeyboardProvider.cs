@@ -124,8 +124,6 @@ public class KeyboardProvider : IKeyboardProvider, IDisposable
 
     private static readonly Regex modifierKeys = new("^(?:Ctrl|Shift|Alt)$");
 
-    private bool HasInitialized { get; set; }
-
     private SimpleGlobalHook? Hook { get; set; }
 
     private Task? HookTask { get; set; }
@@ -152,25 +150,13 @@ public class KeyboardProvider : IKeyboardProvider, IDisposable
         {
             return Task.CompletedTask;
         }
-
-        RegisterHooks();
-        return Task.CompletedTask;
-    }
-
-    public void RegisterHooks()
-    {
+        
         // Initialize keybindings
         KeybindHandlers.Clear();
         foreach (var keybindType in SidekickConfiguration.Keybinds)
         {
             var keybindHandler = (KeybindHandler)serviceProvider.GetRequiredService(keybindType);
             KeybindHandlers.Add(keybindHandler);
-        }
-
-        // We can't initialize twice
-        if (HasInitialized)
-        {
-            return;
         }
 
         // Configure hook logging
@@ -182,8 +168,11 @@ public class KeyboardProvider : IKeyboardProvider, IDisposable
         Hook.KeyPressed += OnKeyPressed;
         HookTask = Hook.RunAsync();
 
-        // Make sure we don't run this multiple times
-        HasInitialized = true;
+        return Task.CompletedTask;
+    }
+
+    public void RegisterHooks()
+    {
     }
 
     private readonly Regex ignoreHookLogs = new Regex("(?:dispatch_mouse_move|hook_get_multi_click_time|dispatch_event|win_hook_event_proc|dispatch_mouse_wheel|dispatch_button_press|dispatch_button_release)", RegexOptions.Compiled);

@@ -173,7 +173,7 @@ public class PoeNinjaClient : IPoeNinjaClient
         await settingsService.Set(SettingKeys.PoeNinjaLastClear, DateTimeOffset.Now);
     }
 
-    public async Task SaveItemsToCache(ItemType itemType, List<NinjaPrice> prices)
+    public void SaveItemsToCache(ItemType itemType, List<NinjaPrice> prices)
     {
         prices = prices
             .GroupBy(x => (x.Name,
@@ -184,7 +184,7 @@ public class PoeNinjaClient : IPoeNinjaClient
             .Select(grouping => grouping.OrderBy(x => x.Price).First())
             .ToList();
 
-        await cacheProvider.Set(GetCacheKey(itemType), prices);
+        cacheProvider.Set(GetCacheKey(itemType), prices);
     }
 
     private async Task<IEnumerable<NinjaPrice>> GetPrices(Category category)
@@ -203,7 +203,7 @@ public class PoeNinjaClient : IPoeNinjaClient
 
     private async Task<IList<NinjaPrice>> GetItems(ItemType itemType)
     {
-        var cachedItems = await cacheProvider.Get<List<NinjaPrice>>(GetCacheKey(itemType), (cache) => cache.Any());
+        var cachedItems = cacheProvider.Get<List<NinjaPrice>>(GetCacheKey(itemType), (cache) => cache.Any());
         if (cachedItems is
             {
                 Count: > 0
@@ -221,7 +221,7 @@ public class PoeNinjaClient : IPoeNinjaClient
 
         if (items.Count != 0)
         {
-            await SaveItemsToCache(itemType, items);
+            SaveItemsToCache(itemType, items);
         }
 
         return items;
