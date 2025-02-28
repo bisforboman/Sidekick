@@ -124,8 +124,6 @@ public class KeyboardProvider : IKeyboardProvider, IDisposable
 
     private static readonly Regex modifierKeys = new("^(?:Ctrl|Shift|Alt)$");
 
-    private bool HasInitialized { get; set; }
-
     private SimpleGlobalHook? Hook { get; set; }
 
     private Task? HookTask { get; set; }
