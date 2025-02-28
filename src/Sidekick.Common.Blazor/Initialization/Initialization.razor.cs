@@ -85,13 +85,7 @@ public partial class Initialization : SidekickView
                 .Select(x => x!)
                 .OrderBy(x => x.Priority);
 
-            foreach (var service in services)
-            {
-                Logger.LogInformation($"[Initialization] Initializing {service.GetType().FullName}");
-                await service.Initialization;
-                Completed += 1;
-                await ReportProgress();
-            }
+            await Task.WhenAll(services.Select(InitializeServiceAndReportProgress));
 
             // If we have a successful initialization, we delay for half a second to show the
             // "Ready" label on the UI before closing the view
@@ -106,6 +100,14 @@ public partial class Initialization : SidekickView
             e.Actions = ExceptionActions.ExitApplication;
             throw;
         }
+    }
+
+    private async Task InitializeServiceAndReportProgress(IInitializableService service)
+    {
+        Logger.LogInformation($"[Initialization] Initializing {service.GetType().FullName}");
+        await service.Initialization;
+        Completed += 1;
+        await ReportProgress();
     }
 
     private async Task StartCountdownToClose()
