@@ -132,9 +132,15 @@ public class KeyboardProvider : IKeyboardProvider, IDisposable
 
     public event Action<string>? OnKeyDown;
 
-    private List<KeybindHandler> KeybindHandlers { get; init; } =
-    [
-    ];
+    private IReadOnlyCollection<KeybindHandler>? keybindHandlers;
+    private IReadOnlyCollection<KeybindHandler> KeybindHandlers => keybindHandlers ??= [.. GetKeybindHandlers()];
+    private IEnumerable<KeybindHandler> GetKeybindHandlers()
+    {
+        foreach (var keybindType in SidekickConfiguration.Keybinds)
+        {
+            yield return (KeybindHandler)serviceProvider.GetRequiredService(keybindType);
+        }
+    }
 
     public HashSet<string?> UsedKeybinds => [ .. KeybindHandlers.SelectMany(k => k.Keybinds)];
 
@@ -149,14 +155,6 @@ public class KeyboardProvider : IKeyboardProvider, IDisposable
         if (Debugger.IsAttached)
         {
             return Task.CompletedTask;
-        }
-
-        // TODO: Remove?
-        KeybindHandlers.Clear();
-        foreach (var keybindType in SidekickConfiguration.Keybinds)
-        {
-            var keybindHandler = (KeybindHandler)serviceProvider.GetRequiredService(keybindType);
-            KeybindHandlers.Add(keybindHandler);
         }
 
         // Configure hook logging
