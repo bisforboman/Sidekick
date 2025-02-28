@@ -10,13 +10,7 @@ using Sidekick.Common.Platform.Windows.DllImport;
 
 namespace Sidekick.Common.Platform.Windows.Processes;
 
-public class ProcessProvider
-(
-    ILogger<ProcessProvider> logger,
-    IApplicationService applicationService,
-    ISidekickDialogs dialogService,
-    PlatformResources platformResources
-) : IProcessProvider, IDisposable
+public class ProcessProvider : IProcessProvider, IDisposable
 {
     private const string PATH_OF_EXILE_TITLE = "Path of Exile";
     private const string PATH_OF_EXILE_2_TITLE = "Path of Exile 2";
@@ -58,7 +52,24 @@ public class ProcessProvider
     private const int TOKEN_ADJUST_DEFAULT = 0x80;
     private const int TOKEN_ALL_ACCESS = STANDARD_RIGHTS_REQUIRED | TOKEN_ASSIGN_PRIMARY | TOKEN_DUPLICATE | TOKEN_IMPERSONATE | TOKEN_QUERY | TOKEN_QUERY_SOURCE | TOKEN_ADJUST_PRIVILEGES | TOKEN_ADJUST_GROUPS | TOKEN_ADJUST_SESSIONID | TOKEN_ADJUST_DEFAULT;
 
-    private readonly ILogger logger = logger;
+    private readonly ILogger logger;
+    private readonly IApplicationService applicationService;
+    private readonly ISidekickDialogs dialogService;
+    private readonly PlatformResources platformResources;
+
+    public ProcessProvider(
+        ILogger<ProcessProvider> logger,
+        IApplicationService applicationService,
+        ISidekickDialogs dialogService,
+        PlatformResources platformResources
+)
+    {
+        this.applicationService = applicationService;
+        this.dialogService = dialogService;
+        this.platformResources = platformResources;
+        this.logger = logger;
+        Initialization = Initialize();
+    }
 
     private bool PermissionChecked { get; set; }
 
@@ -126,6 +137,8 @@ public class ProcessProvider
 
     /// <inheritdoc/>
     public int Priority => 0;
+
+    public Task Initialization { get; }
 
     /// <inheritdoc/>
     public Task Initialize()

@@ -6,7 +6,7 @@ namespace Sidekick.Common.Localization;
 /// <summary>
 ///     Implementation of the ui language provider.
 /// </summary>
-public class UiLanguageProvider(ISettingsService settingsService) : IUiLanguageProvider
+public class UiLanguageProvider : IUiLanguageProvider
 {
     private static readonly string[] supportedLanguages =
     [
@@ -14,14 +14,22 @@ public class UiLanguageProvider(ISettingsService settingsService) : IUiLanguageP
         "fr",
         "ko",
     ];
-
+    private readonly ISettingsService settingsService;
     private string? currentLanguage;
+
+    public UiLanguageProvider(ISettingsService settingsService)
+    {
+        this.settingsService = settingsService;
+        Initialization = Initialize();
+    }
 
     /// <inheritdoc />
     public int Priority => 0;
 
+    public Task Initialization { get; }
+
     /// <inheritdoc />
-    public async Task Initialize()
+    private async Task Initialize()
     {
         var language = await settingsService.GetString(SettingKeys.LanguageUi);
         Set(language ?? "en");

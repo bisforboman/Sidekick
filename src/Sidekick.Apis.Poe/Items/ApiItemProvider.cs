@@ -13,14 +13,31 @@ using Sidekick.Common.Settings;
 namespace Sidekick.Apis.Poe.Items;
 
 public class ApiItemProvider
-(
-    ICacheProvider cacheProvider,
-    IPoeTradeClient poeTradeClient,
-    ILogger<ApiItemProvider> logger,
-    IGameLanguageProvider gameLanguageProvider,
-    ISettingsService settingsService
-) : IApiItemProvider
+: IApiItemProvider
 {
+    private readonly ICacheProvider cacheProvider;
+    private readonly IPoeTradeClient poeTradeClient;
+    private readonly ILogger<ApiItemProvider> logger;
+    private readonly IGameLanguageProvider gameLanguageProvider;
+    private readonly ISettingsService settingsService;
+
+    public ApiItemProvider(
+        ICacheProvider cacheProvider,
+        IPoeTradeClient poeTradeClient,
+        ILogger<ApiItemProvider> logger,
+        IGameLanguageProvider gameLanguageProvider,
+        ISettingsService settingsService
+)
+    {
+        this.cacheProvider = cacheProvider;
+        this.poeTradeClient = poeTradeClient;
+        this.logger = logger;
+        this.gameLanguageProvider = gameLanguageProvider;
+        this.settingsService = settingsService;
+
+        Initialization = Initialize();
+    }
+
     public Dictionary<string, List<ApiItem>> NameAndTypeDictionary { get; } = new();
 
     public List<(Regex Regex, ApiItem Item)> NameAndTypeRegex { get; } = new();
@@ -28,8 +45,10 @@ public class ApiItemProvider
     /// <inheritdoc/>
     public int Priority => 100;
 
+    public Task Initialization { get; }
+
     /// <inheritdoc/>
-    public async Task Initialize()
+    private async Task Initialize()
     {
         NameAndTypeDictionary.Clear();
         NameAndTypeRegex.Clear();

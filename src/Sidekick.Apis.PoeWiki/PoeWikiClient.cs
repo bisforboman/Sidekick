@@ -14,13 +14,7 @@ namespace Sidekick.Apis.PoeWiki;
 /// PoeWiki.net API.
 /// https://www.poewiki.net/wiki/Path_of_Exile_Wiki:Data_query_API
 /// </summary>
-public class PoeWikiClient
-(
-    ILogger<PoeWikiClient> logger,
-    IHttpClientFactory httpClientFactory,
-    IBrowserProvider browserProvider,
-    ICacheProvider cacheProvider
-) : IPoeWikiClient
+public class PoeWikiClient : IPoeWikiClient
 {
     private readonly JsonSerializerOptions options = new()
     {
@@ -54,6 +48,25 @@ public class PoeWikiClient
         "Reflective Oil",
         "Tainted Oil",
     ];
+    private readonly ILogger<PoeWikiClient> logger;
+    private readonly IHttpClientFactory httpClientFactory;
+    private readonly IBrowserProvider browserProvider;
+    private readonly ICacheProvider cacheProvider;
+
+    public PoeWikiClient(
+        ILogger<PoeWikiClient> logger,
+        IHttpClientFactory httpClientFactory,
+        IBrowserProvider browserProvider,
+        ICacheProvider cacheProvider
+)
+    {
+        this.logger = logger;
+        this.httpClientFactory = httpClientFactory;
+        this.browserProvider = browserProvider;
+        this.cacheProvider = cacheProvider;
+
+        Initialization = Initialize();
+    }
 
     private HttpClient GetHttpClient()
     {
@@ -70,8 +83,10 @@ public class PoeWikiClient
     /// <inheritdoc/>
     public int Priority => 0;
 
+    public Task Initialization { get; }
+
     /// <inheritdoc/>
-    public async Task Initialize()
+    private async Task Initialize()
     {
         var result = await cacheProvider.GetOrSet("PoeWikiBlightOils",
                                                   async () =>
