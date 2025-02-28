@@ -10,27 +10,34 @@ using Sidekick.Common.Ui.Views;
 namespace Sidekick.Wpf.Services;
 
 public class WpfApplicationService
-(
-    IViewLocator viewLocator,
-    IStringLocalizer<InitializationResources> resources,
-    IBrowserProvider browserProvider
-) : IApplicationService, IDisposable
+: IApplicationService, IDisposable
 {
-    public bool SupportsKeybinds => true;
+    private readonly IViewLocator viewLocator;
+    private readonly IStringLocalizer<InitializationResources> resources;
+    private readonly IBrowserProvider browserProvider;
 
-    private bool Initialized { get; set; }
+    public WpfApplicationService(
+        IViewLocator viewLocator,
+        IStringLocalizer<InitializationResources> resources,
+        IBrowserProvider browserProvider
+)
+    {
+        this.viewLocator = viewLocator;
+        this.resources = resources;
+        this.browserProvider = browserProvider;
+        Initialization = Initialize();
+    }
+
+    public bool SupportsKeybinds => true;
 
     private TaskbarIcon? Icon { get; set; }
 
     public int Priority => 9000;
 
-    public Task Initialize()
-    {
-        if (Initialized)
-        {
-            return Task.CompletedTask;
-        }
+    public Task Initialization { get; }
 
+    private Task Initialize()
+    {
         InitializeTray();
         return Task.CompletedTask;
     }
@@ -62,8 +69,6 @@ public class WpfApplicationService
                         Shutdown();
                         return Task.CompletedTask;
                     });
-
-        Initialized = true;
     }
 
     private void AddTrayItem(string label, Func<Task>? onClick, bool disabled = false)

@@ -8,14 +8,27 @@ using Sidekick.Common.Settings;
 
 namespace Sidekick.Apis.Poe.Filters;
 
-public class FilterProvider
-(
-    IPoeTradeClient poeTradeClient,
-    IGameLanguageProvider gameLanguageProvider,
-    ISettingsService settingsService,
-    ICacheProvider cacheProvider
-) : IFilterProvider
+public class FilterProvider : IFilterProvider
 {
+    private readonly IPoeTradeClient poeTradeClient;
+    private readonly IGameLanguageProvider gameLanguageProvider;
+    private readonly ISettingsService settingsService;
+    private readonly ICacheProvider cacheProvider;
+
+    public FilterProvider(
+        IPoeTradeClient poeTradeClient,
+        IGameLanguageProvider gameLanguageProvider,
+        ISettingsService settingsService,
+        ICacheProvider cacheProvider)
+    {
+        this.poeTradeClient = poeTradeClient;
+        this.gameLanguageProvider = gameLanguageProvider;
+        this.settingsService = settingsService;
+        this.cacheProvider = cacheProvider;
+
+        Initialization = Initialize();
+    }
+
     public List<ApiFilterOption> TypeCategoryOptions { get; private set; } = [];
     public List<ApiFilterOption> TradePriceOptions { get; private set; } = [];
     public List<ApiFilterOption> TradeIndexedOptions { get; private set; } = [];
@@ -23,8 +36,10 @@ public class FilterProvider
     /// <inheritdoc/>
     public int Priority => 100;
 
+    public Task Initialization { get; }
+
     /// <inheritdoc/>
-    public async Task Initialize()
+    private async Task Initialize()
     {
         var leagueId = await settingsService.GetString(SettingKeys.LeagueId);
         var game = leagueId.GetGameFromLeagueId();

@@ -11,15 +11,7 @@ using Sidekick.Common.Settings;
 
 namespace Sidekick.Apis.Poe.Modifiers;
 
-public class ModifierProvider
-(
-    ICacheProvider cacheProvider,
-    IPoeTradeClient poeTradeClient,
-    IInvariantModifierProvider invariantModifierProvider,
-    IGameLanguageProvider gameLanguageProvider,
-    ISettingsService settingsService,
-    IFuzzyService fuzzyService
-) : IModifierProvider
+public class ModifierProvider : IModifierProvider
 {
     private readonly Regex parseHashPattern = new("\\#");
 
@@ -46,14 +38,41 @@ public class ModifierProvider
     private readonly Regex newLinePattern = new("(?:\\\\)*[\\r\\n]+");
     private readonly Regex hashPattern = new("\\\\#");
     private readonly Regex parenthesesPattern = new("((?:\\\\\\ )*\\\\\\([^\\(\\)]*\\\\\\))");
+    private readonly ICacheProvider cacheProvider;
+    private readonly IPoeTradeClient poeTradeClient;
+    private readonly IInvariantModifierProvider invariantModifierProvider;
+    private readonly IGameLanguageProvider gameLanguageProvider;
+    private readonly ISettingsService settingsService;
+    private readonly IFuzzyService fuzzyService;
+
+    public ModifierProvider(
+        ICacheProvider cacheProvider,
+        IPoeTradeClient poeTradeClient,
+        IInvariantModifierProvider invariantModifierProvider,
+        IGameLanguageProvider gameLanguageProvider,
+        ISettingsService settingsService,
+        IFuzzyService fuzzyService
+)
+    {
+        this.cacheProvider = cacheProvider;
+        this.poeTradeClient = poeTradeClient;
+        this.invariantModifierProvider = invariantModifierProvider;
+        this.gameLanguageProvider = gameLanguageProvider;
+        this.settingsService = settingsService;
+        this.fuzzyService = fuzzyService;
+
+        Initialization = Initialize();
+    }
 
     public Dictionary<ModifierCategory, List<ModifierPattern>> Patterns { get; } = new();
 
     /// <inheritdoc/>
     public int Priority => 200;
 
+    public Task Initialization { get; }
+
     /// <inheritdoc/>
-    public async Task Initialize()
+    private async Task Initialize()
     {
         var leagueId = await settingsService.GetString(SettingKeys.LeagueId);
         var game = leagueId.GetGameFromLeagueId();

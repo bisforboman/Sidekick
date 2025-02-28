@@ -15,16 +15,34 @@ using Sidekick.Common.Settings;
 
 namespace Sidekick.Apis.Poe.Parser.Headers;
 
-public class HeaderParser
-(
-    IGameLanguageProvider gameLanguageProvider,
-    IFuzzyService fuzzyService,
-    IFilterProvider filterProvider,
-    ISettingsService settingsService,
-    IApiItemProvider apiItemProvider
-) : IHeaderParser
+public class HeaderParser : IHeaderParser
 {
+    private readonly IGameLanguageProvider gameLanguageProvider;
+    private readonly IFuzzyService fuzzyService;
+    private readonly IFilterProvider filterProvider;
+    private readonly ISettingsService settingsService;
+    private readonly IApiItemProvider apiItemProvider;
+
+    public HeaderParser(
+        IGameLanguageProvider gameLanguageProvider,
+        IFuzzyService fuzzyService,
+        IFilterProvider filterProvider,
+        ISettingsService settingsService,
+        IApiItemProvider apiItemProvider
+)
+    {
+        this.gameLanguageProvider = gameLanguageProvider;
+        this.fuzzyService = fuzzyService;
+        this.filterProvider = filterProvider;
+        this.settingsService = settingsService;
+        this.apiItemProvider = apiItemProvider;
+
+        Initialization = Initialize();
+    }
+
     public int Priority => 200;
+
+    public Task Initialization { get; }
 
     private Regex Affixes { get; set; } = null!;
 
@@ -38,7 +56,7 @@ public class HeaderParser
 
     private string GetLineWithoutSuperiorAffix(string line) => SuperiorAffix.Replace(line, string.Empty).Trim(' ', ',');
 
-    public async Task Initialize()
+    private async Task Initialize()
     {
         var leagueId = await settingsService.GetString(SettingKeys.LeagueId);
         var game = leagueId.GetGameFromLeagueId();

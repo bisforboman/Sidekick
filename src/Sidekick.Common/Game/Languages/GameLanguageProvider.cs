@@ -4,11 +4,18 @@ using Sidekick.Common.Settings;
 
 namespace Sidekick.Common.Game.Languages;
 
-public class GameLanguageProvider(ISettingsService settingsService) : IGameLanguageProvider
+public class GameLanguageProvider : IGameLanguageProvider
 {
     private const string EnglishLanguageCode = "en";
+    private readonly ISettingsService settingsService;
     private IGameLanguage? language;
     private IGameLanguage? invariantLanguage;
+
+    public GameLanguageProvider(ISettingsService settingsService)
+    {
+        this.settingsService = settingsService;
+        Initialization = Initialize();
+    }
 
     public IGameLanguage Language => language ?? throw new SidekickException("The game language could not be found.");
 
@@ -17,8 +24,10 @@ public class GameLanguageProvider(ISettingsService settingsService) : IGameLangu
     /// <inheritdoc />
     public int Priority => 0;
 
+    public Task Initialization { get; }
+
     /// <inheritdoc />
-    public async Task Initialize()
+    private async Task Initialize()
     {
         var languageCode = await settingsService.GetString(SettingKeys.LanguageParser);
         language = GetLanguage(languageCode ?? EnglishLanguageCode);

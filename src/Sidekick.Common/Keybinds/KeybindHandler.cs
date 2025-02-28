@@ -7,6 +7,7 @@ public abstract class KeybindHandler : IKeybindHandler
     protected KeybindHandler(ISettingsService settingsService)
     {
         settingsService.OnSettingsChanged += OnSettingsChanged;
+        Initialization = Initialize();
     }
 
     private void OnSettingsChanged()
@@ -23,7 +24,9 @@ public abstract class KeybindHandler : IKeybindHandler
 
     public int Priority => 0;
 
-    public async Task Initialize()
+    public Task Initialization { get; }
+
+    private async Task Initialize()
     {
         Keybinds = await GetKeybinds();
     }
