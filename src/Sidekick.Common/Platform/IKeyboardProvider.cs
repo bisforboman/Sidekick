@@ -15,7 +15,7 @@ public interface IKeyboardProvider : IInitializableService
     /// <summary>
     /// Register keyboard hooks to capture keybinds.
     /// </summary>
-    void RegisterHooks();
+    Task RegisterHooks();
 
     /// <summary>
     /// Command to send keystrokes to the system
