@@ -1,6 +1,5 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Serilog;
 using Serilog.Events;
 using Sidekick.Common.Browser;

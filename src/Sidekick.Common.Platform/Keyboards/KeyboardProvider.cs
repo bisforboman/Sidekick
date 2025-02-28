@@ -124,8 +124,6 @@ public class KeyboardProvider : IKeyboardProvider, IDisposable
 
     private static readonly Regex modifierKeys = new("^(?:Ctrl|Shift|Alt)$");
 
-    private bool HasInitialized { get; set; }
-
     private SimpleGlobalHook? Hook { get; set; }
 
     private Task? HookTask { get; set; }
@@ -134,9 +132,10 @@ public class KeyboardProvider : IKeyboardProvider, IDisposable
 
     public event Action<string>? OnKeyDown;
 
-    private List<IKeybindHandler> KeybindHandlers { get; set; } =
-    [
-    ];
+    private IReadOnlyCollection<IKeybindHandler>? savedKeybindHandlers;
+
+    private IReadOnlyCollection<IKeybindHandler> KeybindHandlers => 
+        savedKeybindHandlers ??= [.. serviceProvider.GetServices<IKeybindHandler>()];
 
     public HashSet<string?> UsedKeybinds => [ .. KeybindHandlers.SelectMany(k => k.Keybinds)];
 
@@ -153,21 +152,6 @@ public class KeyboardProvider : IKeyboardProvider, IDisposable
             return Task.CompletedTask;
         }
 
-        RegisterHooks();
-        return Task.CompletedTask;
-    }
-
-    public void RegisterHooks()
-    {
-        KeybindHandlers = [.. serviceProvider.GetServices<IKeybindHandler>()];
-
-        // We can't initialize twice
-        if (HasInitialized)
-        {
-            return;
-        }
-
-        // Configure hook logging
         LogSource = LogSource.RegisterOrGet(minLevel: SharpHook.Native.LogLevel.Info);
         LogSource.MessageLogged += OnMessageLogged;
 
@@ -176,8 +160,11 @@ public class KeyboardProvider : IKeyboardProvider, IDisposable
         Hook.KeyPressed += OnKeyPressed;
         HookTask = Hook.RunAsync();
 
-        // Make sure we don't run this multiple times
-        HasInitialized = true;
+        return Task.CompletedTask;
+    }
+
+    public void RegisterHooks()
+    {
     }
 
     private readonly Regex ignoreHookLogs = new Regex("(?:dispatch_mouse_move|hook_get_multi_click_time|dispatch_event|win_hook_event_proc|dispatch_mouse_wheel|dispatch_button_press|dispatch_button_release)", RegexOptions.Compiled);
