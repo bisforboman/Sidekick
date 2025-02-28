@@ -31,15 +31,21 @@ public class SettingsService : ISettingsService
     private async Task Initialize()
     {
         // If the language is Chinese, we are forcing the use invariant trade results flag.
-        var useInvariantTradeResults = await GetBool(SettingKeys.UseInvariantTradeResults);
-        var languageParser = await GetString(SettingKeys.LanguageParser);
+        var useInvariantTradeResults = await GetBoolPrivate(SettingKeys.UseInvariantTradeResults);
+        var languageParser = await GetStringPrivate(SettingKeys.LanguageParser);
         if (languageParser == "zh" && !useInvariantTradeResults)
         {
-            await Set(SettingKeys.UseInvariantTradeResults, true);
+            await SetPrivate(SettingKeys.UseInvariantTradeResults, true);
         }
     }
 
     public async Task<bool> GetBool(string key)
+    {
+        await Initialization;
+        return await GetBoolPrivate(key);
+    }
+
+    private async Task<bool> GetBoolPrivate(string key)
     {
         await using var dbContext = new SidekickDbContext(dbContextOptions);
         var dbSetting = await dbContext
@@ -61,6 +67,12 @@ public class SettingsService : ISettingsService
 
     public async Task<string?> GetString(string key)
     {
+        await Initialization;
+        return await GetStringPrivate(key);
+    }
+
+    private async Task<string?> GetStringPrivate(string key)
+    {
         await using var dbContext = new SidekickDbContext(dbContextOptions);
         var dbSetting = await dbContext
                               .Settings.Where(x => x.Key == key)
@@ -80,6 +92,12 @@ public class SettingsService : ISettingsService
     }
 
     public async Task<int> GetInt(string key)
+    {
+        await Initialization;
+        return await GetIntPrivate(key);
+    }
+
+    private async Task<int> GetIntPrivate(string key)
     {
         await using var dbContext = new SidekickDbContext(dbContextOptions);
         var dbSetting = await dbContext
@@ -101,10 +119,17 @@ public class SettingsService : ISettingsService
 
     public async Task<DateTimeOffset?> GetDateTime(string key)
     {
+        await Initialization;
+        return await GetDateTimePrivate(key);
+    }
+
+    private async Task<DateTimeOffset?> GetDateTimePrivate(string key)
+    {
         await using var dbContext = new SidekickDbContext(dbContextOptions);
         var dbSetting = await dbContext
                               .Settings.Where(x => x.Key == key)
                               .FirstOrDefaultAsync();
+
         if (dbSetting != null && DateTimeOffset.TryParse(dbSetting.Value, out var dateTimeValue))
         {
             return dateTimeValue;
@@ -120,6 +145,12 @@ public class SettingsService : ISettingsService
     }
 
     public async Task<TValue?> GetObject<TValue>(string key)
+    {
+        await Initialization;
+        return await GetObjectPrivate<TValue>(key);
+    }
+
+    private async Task<TValue?> GetObjectPrivate<TValue>(string key)
     {
         await using var dbContext = new SidekickDbContext(dbContextOptions);
         var dbSetting = await dbContext
@@ -154,7 +185,15 @@ public class SettingsService : ISettingsService
         }
     }
 
+
     public async Task<TEnum?> GetEnum<TEnum>(string key)
+        where TEnum : struct, Enum
+    {
+        await Initialization;
+        return await GetEnumPrivate<TEnum>(key);
+    }
+
+    private async Task<TEnum?> GetEnumPrivate<TEnum>(string key)
         where TEnum : struct, Enum
     {
         await using var dbContext = new SidekickDbContext(dbContextOptions);
@@ -201,9 +240,13 @@ public class SettingsService : ISettingsService
         return default;
     }
 
-    public async Task Set(
-        string key,
-        object? value)
+    public async Task Set(string key, object? value)
+    {
+        await Initialization;
+        await SetPrivate(key, value);
+    }
+
+    private async Task SetPrivate(string key, object? value)
     {
         var stringValue = GetStringValue(value);
 
