@@ -25,11 +25,11 @@ public class ApiItemProvider
 
     public List<(Regex Regex, ApiItem Item)> NameAndTypeRegex { get; } = new();
 
-    /// <inheritdoc/>
-    public int Priority => 100;
+    private Task? isInitialized;
+    public Task Initialization => isInitialized ??= Initialize();
 
     /// <inheritdoc/>
-    public async Task Initialize()
+    private async Task Initialize()
     {
         NameAndTypeDictionary.Clear();
         NameAndTypeRegex.Clear();

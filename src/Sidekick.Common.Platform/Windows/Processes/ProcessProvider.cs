@@ -57,17 +57,10 @@ public class ProcessProvider
     private const int TOKEN_ADJUST_SESSIONID = 0x100;
     private const int TOKEN_ADJUST_DEFAULT = 0x80;
     private const int TOKEN_ALL_ACCESS = STANDARD_RIGHTS_REQUIRED | TOKEN_ASSIGN_PRIMARY | TOKEN_DUPLICATE | TOKEN_IMPERSONATE | TOKEN_QUERY | TOKEN_QUERY_SOURCE | TOKEN_ADJUST_PRIVILEGES | TOKEN_ADJUST_GROUPS | TOKEN_ADJUST_SESSIONID | TOKEN_ADJUST_DEFAULT;
-
-    private readonly ILogger logger = logger;
-
     private bool PermissionChecked { get; set; }
-
     private bool HasInitialized { get; set; }
-
     private CancellationTokenSource? WindowsHook { get; set; }
-
     private DateTimeOffset PreviousFocusedWindowAttempt { get; set; }
-
     private string? PreviousFocusedWindow { get; set; }
 
     private string? GetFocusedWindow()
@@ -125,7 +118,8 @@ public class ProcessProvider
     public bool IsSidekickInFocus => GetFocusedWindow()?.StartsWith(SIDEKICK_TITLE) ?? false;
 
     /// <inheritdoc/>
-    public int Priority => 0;
+    private Task? isInitialized;
+    public Task Initialization => isInitialized ??= Initialize();
 
     /// <inheritdoc/>
     public Task Initialize()

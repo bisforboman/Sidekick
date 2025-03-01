@@ -17,20 +17,12 @@ public class WpfApplicationService
 ) : IApplicationService, IDisposable
 {
     public bool SupportsKeybinds => true;
-
-    private bool Initialized { get; set; }
-
     private TaskbarIcon? Icon { get; set; }
+    private Task? isInitialized;
+    public Task Initialization => isInitialized ??= Initialize();
 
-    public int Priority => 9000;
-
-    public Task Initialize()
+    private Task Initialize()
     {
-        if (Initialized)
-        {
-            return Task.CompletedTask;
-        }
-
         InitializeTray();
         return Task.CompletedTask;
     }
@@ -62,8 +54,6 @@ public class WpfApplicationService
                         Shutdown();
                         return Task.CompletedTask;
                     });
-
-        Initialized = true;
     }
 
     private void AddTrayItem(string label, Func<Task>? onClick, bool disabled = false)

@@ -49,11 +49,11 @@ public class ModifierProvider
 
     public Dictionary<ModifierCategory, List<ModifierPattern>> Patterns { get; } = new();
 
-    /// <inheritdoc/>
-    public int Priority => 200;
+    private Task? isInitialized;
+    public Task Initialization => isInitialized ??= Initialize();
 
     /// <inheritdoc/>
-    public async Task Initialize()
+    private async Task Initialize()
     {
         var leagueId = await settingsService.GetString(SettingKeys.LeagueId);
         var game = leagueId.GetGameFromLeagueId();

@@ -21,11 +21,11 @@ public class ItemStaticDataProvider
 
     private Dictionary<string, StaticItem> ByTexts { get; } = new();
 
-    /// <inheritdoc/>
-    public int Priority => 100;
+    private Task? isInitialized;
+    public Task Initialization => isInitialized ??= Initialize();
 
     /// <inheritdoc/>
-    public async Task Initialize()
+    private async Task Initialize()
     {
         var leagueId = await settingsService.GetString(SettingKeys.LeagueId);
         var game = leagueId.GetGameFromLeagueId();
