@@ -13,10 +13,6 @@ public class PseudoParser
     ISettingsService settingsService
 ) : IPseudoParser
 {
-    private readonly IInvariantModifierProvider invariantModifierProvider = invariantModifierProvider;
-    private readonly IModifierProvider modifierProvider = modifierProvider;
-    private readonly ISettingsService settingsService = settingsService;
-
     private List<PseudoDefinition> Definitions { get; } = new();
 
     private Task? isInitialized;
