@@ -28,9 +28,6 @@ public class PseudoParser
 
     private List<PseudoDefinition> Definitions { get; } = new();
 
-    /// <inheritdoc/>
-    public int Priority => 200;
-
     public Task Initialization { get; }
 
     /// <inheritdoc/>

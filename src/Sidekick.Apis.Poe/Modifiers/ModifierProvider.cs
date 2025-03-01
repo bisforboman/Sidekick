@@ -66,9 +66,6 @@ public class ModifierProvider : IModifierProvider
 
     public Dictionary<ModifierCategory, List<ModifierPattern>> Patterns { get; } = new();
 
-    /// <inheritdoc/>
-    public int Priority => 200;
-
     public Task Initialization { get; }
 
     /// <inheritdoc/>

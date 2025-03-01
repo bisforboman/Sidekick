@@ -33,9 +33,6 @@ public class FilterProvider : IFilterProvider
     public List<ApiFilterOption> TradePriceOptions { get; private set; } = [];
     public List<ApiFilterOption> TradeIndexedOptions { get; private set; } = [];
 
-    /// <inheritdoc/>
-    public int Priority => 100;
-
     public Task Initialization { get; }
 
     /// <inheritdoc/>

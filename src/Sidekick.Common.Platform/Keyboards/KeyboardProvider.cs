@@ -144,9 +144,6 @@ public class KeyboardProvider : IKeyboardProvider, IDisposable
 
     public HashSet<string?> UsedKeybinds => [ .. KeybindHandlers.SelectMany(k => k.Keybinds)];
 
-    /// <inheritdoc/>
-    public int Priority => 100;
-
     public Task Initialization { get; }
 
     /// <inheritdoc/>

@@ -23,9 +23,6 @@ public class UiLanguageProvider : IUiLanguageProvider
         Initialization = Initialize();
     }
 
-    /// <inheritdoc />
-    public int Priority => 0;
-
     public Task Initialization { get; }
 
     /// <inheritdoc />

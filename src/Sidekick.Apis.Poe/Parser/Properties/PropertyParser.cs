@@ -38,8 +38,6 @@ public class PropertyParser
         Initialization = Initialize();
     }
 
-    public int Priority => 200;
-
     private List<PropertyDefinition> Definitions { get; set; } = new();
 
     public Task Initialization { get; }

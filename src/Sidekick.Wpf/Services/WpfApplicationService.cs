@@ -32,8 +32,6 @@ public class WpfApplicationService
 
     private TaskbarIcon? Icon { get; set; }
 
-    public int Priority => 9000;
-
     public Task Initialization { get; }
 
     private Task Initialize()

@@ -41,9 +41,6 @@ public class ApiInvariantItemProvider
 
     public List<string> UncutGemIds { get; } = [];
 
-    /// <inheritdoc/>
-    public int Priority => 100;
-
     public Task Initialization { get; }
 
     /// <inheritdoc/>

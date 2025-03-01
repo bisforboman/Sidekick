@@ -47,9 +47,6 @@ public class InvariantModifierProvider
 
     public Dictionary<int, string> ClusterJewelSmallPassiveGrantOptions { get; private set; } = null!;
 
-    /// <inheritdoc/>
-    public int Priority => 100;
-
     public Task Initialization { get; }
 
     /// <inheritdoc/>

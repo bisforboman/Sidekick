@@ -42,9 +42,6 @@ public class ApiItemProvider
 
     public List<(Regex Regex, ApiItem Item)> NameAndTypeRegex { get; } = new();
 
-    /// <inheritdoc/>
-    public int Priority => 100;
-
     public Task Initialization { get; }
 
     /// <inheritdoc/>

@@ -40,8 +40,6 @@ public class HeaderParser : IHeaderParser
         Initialization = Initialize();
     }
 
-    public int Priority => 200;
-
     public Task Initialization { get; }
 
     private Regex Affixes { get; set; } = null!;

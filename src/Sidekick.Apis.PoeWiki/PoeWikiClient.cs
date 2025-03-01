@@ -81,8 +81,6 @@ public class PoeWikiClient : IPoeWikiClient
     public Dictionary<string, string> BlightOilNamesByMetadataIds { get; private set; } = new();
 
     /// <inheritdoc/>
-    public int Priority => 0;
-
     public Task Initialization { get; }
 
     /// <inheritdoc/>

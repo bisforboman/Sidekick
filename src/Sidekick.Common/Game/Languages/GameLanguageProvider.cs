@@ -21,9 +21,6 @@ public class GameLanguageProvider : IGameLanguageProvider
 
     public IGameLanguage InvariantLanguage => invariantLanguage ?? throw new SidekickException("The English language could not be found.");
 
-    /// <inheritdoc />
-    public int Priority => 0;
-
     public Task Initialization { get; }
 
     /// <inheritdoc />

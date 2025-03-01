@@ -36,9 +36,6 @@ public class ItemStaticDataProvider
 
     private Dictionary<string, StaticItem> ByTexts { get; } = new();
 
-    /// <inheritdoc/>
-    public int Priority => 100;
-
     public Task Initialization { get; }
 
     /// <inheritdoc/>
