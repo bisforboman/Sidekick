@@ -125,6 +125,10 @@ public class KeyboardProvider(
         { KeyCode.VcNumPad9, "Num9" },
     };
 
+    private static readonly Dictionary<string, KeyCode> stringToKey = keyMappings
+        .DistinctBy(s => s.Value)
+        .ToDictionary(x => x.Value, x => x.Key);
+
     private static readonly Regex modifierKeys = new("^(?:Ctrl|Shift|Alt)$");
 
     private bool HasInitialized { get; set; }
@@ -326,29 +330,28 @@ public class KeyboardProvider(
             // Modifier keys;
             if (modifierKeys.IsMatch(key))
             {
-                var modifierKey = key switch
+                switch (key)
                 {
-                    "Shift" => KeyCode.VcLeftShift,
-                    "Ctrl" => KeyCode.VcLeftControl,
-                    "Alt" => KeyCode.VcLeftAlt,
-                    _ => KeyCode.Vc0
+                    case "Shift": 
+                        modifierCodes.Add(KeyCode.VcLeftShift);
+                        break;
+
+                    case "Ctrl":
+                        modifierCodes.Add(KeyCode.VcLeftControl);
+                        break;
+
+                    case "Alt": 
+                        modifierCodes.Add(KeyCode.VcLeftAlt);
+                        break;
                 };
 
-                if (modifierKey != KeyCode.Vc0)
-                {
-                    modifierCodes.Add(modifierKey);
-                }
-
                 continue;
             }
 
-            if (keyMappings.All(x => x.Value != key))
+            if (stringToKey.TryGetValue(key, out var keyCode))
             {
-                continue;
+                keyCodes.Add(keyCode);
             }
-
-            var validKey = keyMappings.First(x => x.Value == key);
-            keyCodes.Add(validKey.Key);
         }
 
         if (keyCodes.Count == 0)
