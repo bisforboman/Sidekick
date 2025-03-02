@@ -125,7 +125,8 @@ public class ProcessProvider
     public bool IsSidekickInFocus => GetFocusedWindow()?.StartsWith(SIDEKICK_TITLE) ?? false;
 
     /// <inheritdoc/>
-    public int Priority => 0;
+    private Task? isInitialized;
+    public Task Initialization => isInitialized ??= Initialize();
 
     /// <inheritdoc/>
     public Task Initialize()

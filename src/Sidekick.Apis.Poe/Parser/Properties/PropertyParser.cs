@@ -21,11 +21,12 @@ public class PropertyParser
     IStringLocalizer<FilterResources> filterLocalizer
 ) : IPropertyParser
 {
-    public int Priority => 200;
-
     private List<PropertyDefinition> Definitions { get; set; } = new();
 
-    public async Task Initialize()
+    private Task? isInitialized;
+    public Task Initialization => isInitialized ??= Initialize();
+
+    private async Task Initialize()
     {
         var leagueId = await settingsService.GetString(SettingKeys.LeagueId);
         var game = leagueId.GetGameFromLeagueId();

@@ -13,22 +13,30 @@ public class SettingsService(
     ILogger<SettingsService> logger) : ISettingsService
 {
     public event Action? OnSettingsChanged;
+    private Task? isInitialized;
+    public Task Initialization => isInitialized ??= Initialize();
 
-    public int Priority { get; set; } = int.MinValue;
-
-    public async Task Initialize()
+    private async Task Initialize()
     {
         // If the language is Chinese, we are forcing the use invariant trade results flag.
-        var useInvariantTradeResults = await GetBool(SettingKeys.UseInvariantTradeResults);
-        var languageParser = await GetString(SettingKeys.LanguageParser);
+        var useInvariantTradeResults = await GetBool(SettingKeys.UseInvariantTradeResults, false);
+        var languageParser = await GetString(SettingKeys.LanguageParser, false);
         if (languageParser == "zh" && !useInvariantTradeResults)
         {
-            await Set(SettingKeys.UseInvariantTradeResults, true);
+            await Set(SettingKeys.UseInvariantTradeResults, true, false);
         }
     }
 
-    public async Task<bool> GetBool(string key)
+    public async Task<bool> GetBool(string key) => 
+        await GetBool(key, true);
+
+    private async Task<bool> GetBool(string key, bool checkInitialization)
     {
+        if (checkInitialization)
+        {
+            await Initialization;
+        }
+
         await using var dbContext = new SidekickDbContext(dbContextOptions);
         var dbSetting = await dbContext
                               .Settings.Where(x => x.Key == key)
@@ -47,8 +55,16 @@ public class SettingsService(
         return (bool)(defaultProperty.GetValue(null) ?? false);
     }
 
-    public async Task<string?> GetString(string key)
+    public async Task<string?> GetString(string key) => 
+        await GetString(key, true);
+
+    private async Task<string?> GetString(string key, bool checkInitialization)
     {
+        if (checkInitialization)
+        {
+            await Initialization;
+        }
+
         await using var dbContext = new SidekickDbContext(dbContextOptions);
         var dbSetting = await dbContext
                               .Settings.Where(x => x.Key == key)
@@ -67,8 +83,16 @@ public class SettingsService(
         return (string?)(defaultProperty.GetValue(null) ?? null);
     }
 
-    public async Task<int> GetInt(string key)
+    public async Task<int> GetInt(string key) => 
+        await GetInt(key, true);
+
+    private async Task<int> GetInt(string key, bool checkInitialization)
     {
+        if (checkInitialization)
+        {
+            await Initialization;
+        }
+
         await using var dbContext = new SidekickDbContext(dbContextOptions);
         var dbSetting = await dbContext
                               .Settings.Where(x => x.Key == key)
@@ -87,12 +111,21 @@ public class SettingsService(
         return (int)(defaultProperty.GetValue(null) ?? 0);
     }
 
-    public async Task<DateTimeOffset?> GetDateTime(string key)
+    public async Task<DateTimeOffset?> GetDateTime(string key) => 
+        await GetDateTime(key, true);
+
+    private async Task<DateTimeOffset?> GetDateTime(string key, bool checkInitialization)
     {
+        if (checkInitialization)
+        {
+            await Initialization;
+        }
+
         await using var dbContext = new SidekickDbContext(dbContextOptions);
         var dbSetting = await dbContext
                               .Settings.Where(x => x.Key == key)
                               .FirstOrDefaultAsync();
+
         if (dbSetting != null && DateTimeOffset.TryParse(dbSetting.Value, out var dateTimeValue))
         {
             return dateTimeValue;
@@ -107,8 +140,16 @@ public class SettingsService(
         return (DateTimeOffset?)(defaultProperty.GetValue(null) ?? null);
     }
 
-    public async Task<TValue?> GetObject<TValue>(string key)
+    public async Task<TValue?> GetObject<TValue>(string key) => 
+        await GetObject<TValue>(key, true);
+
+    private async Task<TValue?> GetObject<TValue>(string key, bool checkInitialization)
     {
+        if (checkInitialization)
+        {
+            await Initialization;
+        }
+
         await using var dbContext = new SidekickDbContext(dbContextOptions);
         var dbSetting = await dbContext
                               .Settings.Where(x => x.Key == key)
@@ -142,9 +183,18 @@ public class SettingsService(
         }
     }
 
+
     public async Task<TEnum?> GetEnum<TEnum>(string key)
+        where TEnum : struct, Enum => await GetEnum<TEnum>(key, true);
+
+    private async Task<TEnum?> GetEnum<TEnum>(string key, bool checkInitialization)
         where TEnum : struct, Enum
     {
+        if (checkInitialization)
+        {
+            await Initialization;
+        }
+
         await using var dbContext = new SidekickDbContext(dbContextOptions);
         var dbSetting = await dbContext
                               .Settings.Where(x => x.Key == key)
@@ -189,10 +239,16 @@ public class SettingsService(
         return default;
     }
 
-    public async Task Set(
-        string key,
-        object? value)
+    public async Task Set(string key, object? value) =>
+        await Set(key, value, true);
+
+    private async Task Set(string key, object? value, bool checkInitialization)
     {
+        if (checkInitialization)
+        {
+            await Initialization;
+        }
+
         var stringValue = GetStringValue(value);
 
         var defaultProperty = typeof(DefaultSettings).GetProperty(key);
