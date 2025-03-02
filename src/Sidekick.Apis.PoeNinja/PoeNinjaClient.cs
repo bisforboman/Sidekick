@@ -173,61 +173,38 @@ public class PoeNinjaClient : IPoeNinjaClient
         await settingsService.Set(SettingKeys.PoeNinjaLastClear, DateTimeOffset.Now);
     }
 
-    public async Task SaveItemsToCache(ItemType itemType, List<NinjaPrice> prices)
-    {
-        prices = prices
-            .GroupBy(x => (x.Name,
-                           x.Corrupted,
-                           x.MapTier,
-                           x.GemLevel,
-                           x.Links))
-            .Select(grouping => grouping.OrderBy(x => x.Price).First())
-            .ToList();
-
-        await cacheProvider.Set(GetCacheKey(itemType), prices);
-    }
-
     private async Task<IEnumerable<NinjaPrice>> GetPrices(Category category)
     {
         var itemTypes = GetApiItemTypes(category);
-        var tasks = new List<Task<IList<NinjaPrice>>>();
-
-        foreach (var itemType in itemTypes)
-        {
-            tasks.Add(GetItems(itemType));
-        }
-
-        var prices = await Task.WhenAll(tasks);
+        var prices = await Task.WhenAll(itemTypes.Select(GetItems));
         return prices.SelectMany(x => x);
     }
 
-    private async Task<IList<NinjaPrice>> GetItems(ItemType itemType)
-    {
-        var cachedItems = await cacheProvider.Get<List<NinjaPrice>>(GetCacheKey(itemType), (cache) => cache.Any());
-        if (cachedItems is
-            {
-                Count: > 0
-            })
-        {
-            return cachedItems;
-        }
+    private async Task<IEnumerable<NinjaPrice>> GetItems(ItemType itemType) => 
+        await cacheProvider.GetOrSet(GetCacheKey(itemType), () => Fetch(itemType), (cache) => cache.Any());
 
-        var items = (itemType switch
+    private async Task<List<NinjaPrice>> Fetch(ItemType itemType)
+    {
+        var perItem = itemType switch
         {
             ItemType.Currency => await FetchCurrencies(itemType),
             ItemType.Fragment => await FetchCurrencies(itemType),
             _ => await FetchItems(itemType),
-        }).ToList();
+        };
 
-        if (items.Count != 0)
-        {
-            await SaveItemsToCache(itemType, items);
-        }
+        var items = perItem
+                .GroupBy(x => (x.Name,
+                            x.Corrupted,
+                            x.MapTier,
+                            x.GemLevel,
+                            x.Links))
+                .Select(grouping => grouping.OrderBy(x => x.Price).First())
+                .ToList();
 
         return items;
     }
 
-    private async Task<IEnumerable<NinjaPrice>> FetchItems(ItemType itemType)
+    private async Task<IReadOnlyCollection<NinjaPrice>> FetchItems(ItemType itemType)
     {
         var leagueId = await settingsService.GetString(SettingKeys.LeagueId);
         var url = new Uri($"{apiBaseUrl}itemoverview?league={leagueId.GetUrlSlugForLeague()}&type={itemType}");
@@ -243,7 +220,7 @@ public class PoeNinjaClient : IPoeNinjaClient
                 return [];
             }
 
-            return result.Lines
+            return [.. result.Lines
                     .Select(x => new NinjaPrice()
                     {
                         Corrupted = x.Corrupted,
@@ -260,7 +237,7 @@ public class PoeNinjaClient : IPoeNinjaClient
                         BaseType = x.BaseType,
                         ItemLevel = x.ItemLevel,
                         SmallPassiveCount = x.ClusterSmallPassiveCount,
-                    });
+                    })];
         }
         catch (Exception)
         {
@@ -270,7 +247,7 @@ public class PoeNinjaClient : IPoeNinjaClient
         return [];
     }
 
-    private async Task<IEnumerable<NinjaPrice>> FetchCurrencies(ItemType itemType)
+    private async Task<IReadOnlyCollection<NinjaPrice>> FetchCurrencies(ItemType itemType)
     {
         var leagueId = await settingsService.GetString(SettingKeys.LeagueId);
         var url = new Uri($"{apiBaseUrl}currencyoverview?league={leagueId.GetUrlSlugForLeague()}&type={itemType}");
@@ -286,7 +263,7 @@ public class PoeNinjaClient : IPoeNinjaClient
                 return [];
             }
 
-            return result.Lines
+            return [.. result.Lines
                     .Where(x => x.Receive?.Value != null)
                     .Select(x => new NinjaPrice()
                     {
@@ -297,7 +274,7 @@ public class PoeNinjaClient : IPoeNinjaClient
                         DetailsId = x.DetailsId,
                         ItemType = itemType,
                         SparkLine = x.ReceiveSparkLine ?? x.LowConfidenceReceiveSparkLine,
-                    });
+                    })];
         }
         catch
         {
