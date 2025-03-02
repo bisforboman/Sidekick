@@ -166,8 +166,7 @@ public class PoeNinjaClient : IPoeNinjaClient
 
     private async Task ClearCacheIfExpired()
     {
-        var isCacheTimeValid = DateTimeOffset.Now - LastClear <= TimeSpan.FromHours(6);
-        if (isCacheTimeValid)
+        if (IsCacheValid())
         {
             return;
         }
@@ -180,6 +179,8 @@ public class PoeNinjaClient : IPoeNinjaClient
         await settingsService.Set(SettingKeys.PoeNinjaLastClear, DateTimeOffset.Now);
     }
 
+    private bool IsCacheValid() => DateTimeOffset.Now - LastClear <= TimeSpan.FromHours(6);
+
     private async Task<IEnumerable<NinjaPrice>> GetPrices(Category category)
     {
         var itemTypes = GetApiItemTypes(category);
@@ -188,7 +189,7 @@ public class PoeNinjaClient : IPoeNinjaClient
     }
 
     private async Task<IEnumerable<NinjaPrice>> GetItems(ItemType itemType) => 
-        await cacheProvider.GetOrSet(GetCacheKey(itemType), () => Fetch(itemType), (cache) => cache.Any());
+        await cacheProvider.GetOrSet(GetCacheKey(itemType), () => Fetch(itemType), (cache) => cache.Any() && IsCacheValid());
 
     private async Task<List<NinjaPrice>> Fetch(ItemType itemType)
     {
