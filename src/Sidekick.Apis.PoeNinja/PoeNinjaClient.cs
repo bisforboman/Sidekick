@@ -24,6 +24,14 @@ public class PoeNinjaClient : IPoeNinjaClient
     private readonly IHttpClientFactory httpClientFactory;
     private readonly ILogger<PoeNinjaClient> logger;
     private readonly JsonSerializerOptions options;
+    private DateTimeOffset LastClear { get; set; }
+
+    public int Priority => 2000;
+
+    public async Task Initialize()
+    {
+        LastClear = await settingsService.GetDateTime(SettingKeys.PoeNinjaLastClear) ?? DateTimeOffset.MinValue;
+    }
 
     public PoeNinjaClient(
         ICacheProvider cacheProvider,
@@ -158,8 +166,7 @@ public class PoeNinjaClient : IPoeNinjaClient
 
     private async Task ClearCacheIfExpired()
     {
-        var lastClear = await settingsService.GetDateTime(SettingKeys.PoeNinjaLastClear);
-        var isCacheTimeValid = lastClear.HasValue && DateTimeOffset.Now - lastClear <= TimeSpan.FromHours(6);
+        var isCacheTimeValid = DateTimeOffset.Now - LastClear <= TimeSpan.FromHours(6);
         if (isCacheTimeValid)
         {
             return;
