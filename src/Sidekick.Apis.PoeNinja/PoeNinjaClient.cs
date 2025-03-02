@@ -14,43 +14,26 @@ namespace Sidekick.Apis.PoeNinja;
 /// <summary>
 /// https://poe.ninja/swagger
 /// </summary>
-public class PoeNinjaClient : IPoeNinjaClient
+public class PoeNinjaClient(
+    ICacheProvider cacheProvider,
+    ISettingsService settingsService,
+    IHttpClientFactory httpClientFactory,
+    ILogger<PoeNinjaClient> logger) : IPoeNinjaClient
 {
     private static readonly Uri baseUrl = new("https://poe.ninja/");
     private static readonly Uri apiBaseUrl = new("https://poe.ninja/api/data/");
-
-    private readonly ICacheProvider cacheProvider;
-    private readonly ISettingsService settingsService;
-    private readonly IHttpClientFactory httpClientFactory;
-    private readonly ILogger<PoeNinjaClient> logger;
-    private readonly JsonSerializerOptions options;
+    private readonly JsonSerializerOptions options = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
+    };
     private DateTimeOffset LastClear { get; set; }
 
     public int Priority => 2000;
 
-    public async Task Initialize()
-    {
+    public async Task Initialize() => 
         LastClear = await settingsService.GetDateTime(SettingKeys.PoeNinjaLastClear) ?? DateTimeOffset.MinValue;
-    }
-
-    public PoeNinjaClient(
-        ICacheProvider cacheProvider,
-        ISettingsService settingsService,
-        IHttpClientFactory httpClientFactory,
-        ILogger<PoeNinjaClient> logger)
-    {
-        this.cacheProvider = cacheProvider;
-        this.settingsService = settingsService;
-        this.httpClientFactory = httpClientFactory;
-        this.logger = logger;
-
-        options = new JsonSerializerOptions()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        };
-        options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
-    }
 
     private HttpClient GetHttpClient()
     {
