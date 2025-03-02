@@ -216,6 +216,9 @@
   <data name="PriceCheck_CloseWithMouse" xml:space="preserve">
     <value>Close Overlay with Mouse Click</value>
   </data>
+  <data name="Check_All_Filters" xml:space="preserve">
+    <value>Should all filters be checked by default</value>
+  </data>
   <data name="PriceCheck_Key_Check" xml:space="preserve">
     <value>Check Prices</value>
   </data>

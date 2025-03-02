@@ -15,6 +15,7 @@ public class SettingsResources(IStringLocalizer<SettingsResources> resources)
     public string Map_Dangerous_Regex => resources["Map_Dangerous_Regex"];
     public string Map_Key_Check => resources["Map_Key_Check"];
     public string PriceCheck_CloseWithMouse => resources["PriceCheck_CloseWithMouse"];
+    public string Check_All_Filters => resources["Check_All_Filters"];
     public string PriceCheck_Key_Check => resources["PriceCheck_Key_Check"];
     public string PriceCheck_Prediction_Enable => resources["PriceCheck_Prediction_Enable"];
     public string Title => resources["Title"];

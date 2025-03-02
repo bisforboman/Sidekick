@@ -62,6 +62,15 @@ public class PriceCheckService(
                         .GetPseudoModifierFilters(Item)
                         .ToList();
 
+        var checkAllFilters = await settingsService.GetBool(SettingKeys.CheckAllFilters);
+        if (checkAllFilters)
+        {
+            foreach (var f in ModifierFilters)
+            {
+                f.Checked = true;
+            }
+        }
+
         SupportsBulk = bulkTradeService.SupportsBulkTrade(Item);
         if (SupportsBulk)
         {

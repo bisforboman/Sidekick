@@ -1,0 +1,27 @@
+@using Sidekick.Common.Blazor.Settings
+@using Sidekick.Common.Settings
+
+<FormCheckbox Value="@Enabled"
+              ValueChanged="@Update">
+    @Resources.Check_All_Filters
+</FormCheckbox>
+
+@inject SettingsResources Resources
+@inject ISettingsService SettingsService
+
+@code {
+
+    private bool Enabled { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Enabled = await SettingsService.GetBool(SettingKeys.CheckAllFilters);
+        await base.OnInitializedAsync();
+    }
+
+    private async Task Update(bool value)
+    {
+        Enabled = value;
+        await SettingsService.Set(SettingKeys.CheckAllFilters, value);
+    }
+}
