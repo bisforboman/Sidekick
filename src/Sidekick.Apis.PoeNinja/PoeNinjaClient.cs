@@ -63,7 +63,6 @@ public class PoeNinjaClient(
             };
         }
 
-        await ClearCacheIfExpired();
         var prices = await GetPrices(category);
 
         var query = prices.Where(x => x.Name == englishName || x.Name == englishType);
@@ -107,7 +106,6 @@ public class PoeNinjaClient(
             _ => 1,
         };
 
-        await ClearCacheIfExpired();
         var prices = await GetPrices(Category.Jewel);
 
         var query = prices
@@ -146,21 +144,6 @@ public class PoeNinjaClient(
     }
 
     private static string GetCacheKey(ItemType itemType) => $"PoeNinja_{itemType}";
-
-    private async Task ClearCacheIfExpired()
-    {
-        if (IsCacheValid())
-        {
-            return;
-        }
-
-        foreach (var value in Enum.GetValues<ItemType>())
-        {
-            cacheProvider.Delete(GetCacheKey(value));
-        }
-
-        await settingsService.Set(SettingKeys.PoeNinjaLastClear, DateTimeOffset.Now);
-    }
 
     private bool IsCacheValid() => DateTimeOffset.Now - LastClear <= TimeSpan.FromHours(6);
 
