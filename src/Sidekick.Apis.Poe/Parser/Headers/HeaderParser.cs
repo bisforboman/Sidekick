@@ -206,21 +206,9 @@ public class HeaderParser
 
     public ItemHeader Parse(ParsingItem parsingItem)
     {
-        var rarity = ParseRarity(parsingItem);
-
-        string? type = null;
-        if (parsingItem.Blocks[0].Lines.Count >= 2)
-        {
-            type = parsingItem.Blocks[0].Lines[^1].Text;
-            parsingItem.Blocks[0].Lines[^1].Parsed = true;
-        }
-
-        string? name = null;
-        if (parsingItem.Blocks[0].Lines.Count >= 3 && !parsingItem.Blocks[0].Lines[^2].Parsed)
-        {
-            name = parsingItem.Blocks[0].Lines[^2].Text;
-            parsingItem.Blocks[0].Lines[^2].Parsed = true;
-        }
+        var rarity = ParseRarity(parsingItem.Blocks[0].Lines[1]);
+        var type = ParseType(parsingItem.Blocks[0]);
+        var name = ParseName(parsingItem.Blocks[0]);
 
         var vaalGem = ParseVaalGem(parsingItem, rarity);
         if (vaalGem != null)
@@ -239,6 +227,28 @@ public class HeaderParser
         parsingItem.Blocks[0].Parsed = true;
 
         return header;
+    }
+
+    private static string? ParseName(ParsingBlock parsingBlock)
+    {
+        if (parsingBlock.Lines.Count >= 3 && !parsingBlock.Lines[^2].Parsed)
+        {
+            parsingBlock.Lines[^2].Parsed = true;
+            return parsingBlock.Lines[^2].Text;
+        }
+
+        return null;
+    }
+
+    private static string? ParseType(ParsingBlock parsingBlock)
+    {
+        if (parsingBlock.Lines.Count >= 2)
+        {
+            parsingBlock.Lines[^1].Parsed = true;
+            return parsingBlock.Lines[^1].Text;
+        }
+
+        return null;
     }
 
     private string? ParseItemCategory(ParsingItem parsingItem)
@@ -360,16 +370,16 @@ public class HeaderParser
         return vaalGem?.First();
     }
 
-    private Rarity ParseRarity(ParsingItem parsingItem)
+    private Rarity ParseRarity(ParsingLine parsingLine)
     {
         foreach (var pattern in RarityPatterns)
         {
-            if (!pattern.Value.IsMatch(parsingItem.Blocks[0].Lines[1].Text))
+            if (!pattern.Value.IsMatch(parsingLine.Text))
             {
                 continue;
             }
 
-            parsingItem.Blocks[0].Lines[1].Parsed = true;
+            parsingLine.Parsed = true;
             return pattern.Key;
         }
 
