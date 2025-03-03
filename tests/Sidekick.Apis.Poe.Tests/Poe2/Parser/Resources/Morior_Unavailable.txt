@@ -1,0 +1,28 @@
+Item Class: Body Armours
+Rarity: Unique
+You cannot use this item. Its stats will be ignored
+--------
+Morior Invictus
+Grand Regalia
+--------
+Quality: +20% (augmented)
+Armour: 551 (augmented)
+Evasion Rating: 502 (augmented)
+Energy Shield: 188 (augmented)
+--------
+Requires: Level 65, 51 (unmet) Str, 51 (unmet) Dex, 51 Int
+--------
+Sockets: S S S S 
+--------
+Item Level: 82
+--------
+8% increased maximum Mana (rune)
+--------
+240% increased Armour, Evasion and Energy Shield
+6% increased Maximum Mana per Socketed Rune or Soul Core
++10 to Spirit per Socketed Rune or Soul Core
+--------
+The Unblinking Eye did not cower and wail.
+They stood against the end.
+--------
+Corrupted

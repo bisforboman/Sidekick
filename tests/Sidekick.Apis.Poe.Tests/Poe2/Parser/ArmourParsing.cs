@@ -63,4 +63,22 @@ Corrupted
 
         Assert.True(actual.Properties.Corrupted);
     }
+
+    [Theory]
+    [InlineData("Resources/Morior.txt")]
+    [InlineData("Resources/Morior_Unavailable.txt")]
+    public void TestName(string filePath)
+    {
+        var input = ResourceHelper.ReadFileContent(filePath);
+
+        var actual = parser.ParseItem(input);
+
+        Assert.Equal(Category.Armour, actual.Header.Category);
+        Assert.Equal(Rarity.Unique, actual.Header.Rarity);
+        Assert.Equal("armour.boots", actual.Header.ItemCategory);
+        Assert.Equal("Steeltoe Boots", actual.Header.ApiType);
+        Assert.Equal("Thunderstep", actual.Header.ApiName);
+
+        actual.AssertHasModifier(ModifierCategory.Explicit, "#% to Lightning Resistance", 33);
+    }
 }
