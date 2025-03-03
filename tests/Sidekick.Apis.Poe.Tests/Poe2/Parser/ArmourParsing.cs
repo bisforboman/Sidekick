@@ -75,10 +75,12 @@ Corrupted
 
         Assert.Equal(Category.Armour, actual.Header.Category);
         Assert.Equal(Rarity.Unique, actual.Header.Rarity);
-        Assert.Equal("armour.boots", actual.Header.ItemCategory);
-        Assert.Equal("Steeltoe Boots", actual.Header.ApiType);
-        Assert.Equal("Thunderstep", actual.Header.ApiName);
+        Assert.Equal("armour.chest", actual.Header.ItemCategory);
+        Assert.Equal("Grand Regalia", actual.Header.ApiType);
+        Assert.Equal("Morior Invictus", actual.Header.ApiName);
 
-        actual.AssertHasModifier(ModifierCategory.Explicit, "#% to Lightning Resistance", 33);
+        actual.AssertHasModifier(ModifierCategory.Explicit, "#% increased Armour, Evasion and Energy Shield", 240);
+        actual.AssertHasModifier(ModifierCategory.Explicit, "#% increased Maximum Mana per Socketed Rune or Soul Core", 6);
+        actual.AssertHasModifier(ModifierCategory.Explicit, "+# to Spirit per Socketed Rune or Soul Core", 10);
     }
 }

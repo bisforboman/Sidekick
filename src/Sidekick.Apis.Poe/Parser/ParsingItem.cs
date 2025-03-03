@@ -20,11 +20,16 @@ public class ParsingItem
     {
         Text = new ItemNameTokenizer().CleanString(text);
         Text = ModifierProvider.RemoveSquareBrackets(Text);
+        Text = RemoveUnavailableText(Text);
         Blocks = Text
             .Split(SeparatorPattern, StringSplitOptions.RemoveEmptyEntries)
             .Select(x => new ParsingBlock(x.Trim('\r', '\n')))
             .ToList();
     }
+
+    private static readonly Regex unavailableTextPattern = new("You cannot use this item. Its stats will be ignored*[\\r\\n-]+");
+    private static string RemoveUnavailableText(string text) => 
+        unavailableTextPattern.Replace(text, string.Empty);
 
     public ItemHeader? Header { get; set; }
 
