@@ -9,5 +9,5 @@ public interface IModifierParser
     /// </summary>
     /// <param name="parsingItem">The item currently being parsed.</param>
     /// <returns>The list of modifier lines. Each line may contain one or more modifiers which the user will then have to pick.</returns>
-    List<ModifierLine> Parse(ParsingItem parsingItem);
+    List<ModifierLine> Parse(ParsingItem parsingItem, ItemHeader itemHeader);
 }

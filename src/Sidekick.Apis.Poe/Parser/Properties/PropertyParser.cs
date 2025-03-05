@@ -67,12 +67,12 @@ public class PropertyParser
         ]);
     }
 
-    public ItemProperties Parse(ParsingItem parsingItem)
+    public ItemProperties Parse(ParsingItem parsingItem, ItemHeader itemHeader)
     {
         var properties = new ItemProperties();
         foreach (var definition in Definitions)
         {
-            if (definition.ValidCategories.Count > 0 && !definition.ValidCategories.Contains(parsingItem.Header?.Category ?? Category.Unknown)) continue;
+            if (definition.ValidCategories.Count > 0 && !definition.ValidCategories.Contains(itemHeader.Category)) continue;
 
             definition.Parse(properties, parsingItem);
         }
@@ -80,11 +80,11 @@ public class PropertyParser
         return properties;
     }
 
-    public void ParseAfterModifiers(ParsingItem parsingItem, ItemProperties properties, List<ModifierLine> modifierLines)
+    public void ParseAfterModifiers(ParsingItem parsingItem, ItemProperties properties, List<ModifierLine> modifierLines, ItemHeader itemHeader)
     {
         foreach (var definition in Definitions)
         {
-            if (definition.ValidCategories.Count > 0 && !definition.ValidCategories.Contains(parsingItem.Header?.Category ?? Category.Unknown)) continue;
+            if (definition.ValidCategories.Count > 0 && !definition.ValidCategories.Contains(itemHeader.Category)) continue;
 
             definition.ParseAfterModifiers(properties, parsingItem, modifierLines);
         }

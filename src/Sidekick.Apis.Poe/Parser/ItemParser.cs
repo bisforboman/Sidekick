@@ -35,44 +35,49 @@ public class ItemParser
         try
         {
             var parsingItem = new ParsingItem(itemText);
-            parsingItem.Header = headerParser.Parse(parsingItem);
-            if (parsingItem.Header == null || (string.IsNullOrEmpty(parsingItem.Header.ApiName) && string.IsNullOrEmpty(parsingItem.Header.ApiType)))
+            var itemHeader = headerParser.Parse(parsingItem);
+            if (string.IsNullOrEmpty(itemHeader.ApiName) && string.IsNullOrEmpty(itemHeader.ApiType))
             {
                 throw new UnparsableException();
             }
 
-            ItemHeader? invariant = null;
-            if (parsingItem.Header.ApiItemId != null && apiInvariantItemProvider.IdDictionary.TryGetValue(parsingItem.Header.ApiItemId, out var invariantMetadata))
-            {
-                invariant = invariantMetadata.ToHeader();
-            }
+            var invariant = GetInvariant(itemHeader);
 
             // Order of parsing is important
             requirementsParser.Parse(parsingItem);
             var sockets = socketParser.Parse(parsingItem);
-            var properties = propertyParser.Parse(parsingItem);
-            var modifierLines = modifierParser.Parse(parsingItem);
-            propertyParser.ParseAfterModifiers(parsingItem, properties, modifierLines);
+            var properties = propertyParser.Parse(parsingItem, itemHeader);
+            var modifierLines = modifierParser.Parse(parsingItem, itemHeader);
+            propertyParser.ParseAfterModifiers(parsingItem, properties, modifierLines, itemHeader);
             var pseudoModifiers = pseudoParser.Parse(modifierLines);
-            var item = new Item(invariant: invariant,
-                                itemHeader: parsingItem.Header,
-                                itemProperties: properties,
-                                sockets: sockets,
-                                modifierLines: modifierLines,
-                                pseudoModifiers: pseudoModifiers,
-                                text: parsingItem.Text);
+            var clusterInformation = clusterJewelParser.Parse(itemHeader, modifierLines);
 
-            if (clusterJewelParser.TryParse(item, out var clusterInformation))
+            return new Item
             {
-                item.AdditionalInformation = clusterInformation;
-            }
-
-            return item;
+                Invariant = invariant,
+                Header = itemHeader,
+                Properties = properties,
+                Sockets = sockets,
+                ModifierLines = modifierLines,
+                PseudoModifiers = pseudoModifiers,
+                Text = parsingItem.Text,
+                AdditionalInformation = clusterInformation,
+            };
         }
         catch (Exception e)
         {
             logger.LogWarning(e, "Could not parse item.");
             throw;
         }
+    }
+
+    private ItemHeader? GetInvariant(ItemHeader itemHeader)
+    {
+        if (itemHeader.ApiItemId != null && apiInvariantItemProvider.IdDictionary.TryGetValue(itemHeader.ApiItemId, out var invariantMetadata))
+        {
+            return invariantMetadata.ToHeader();
+        }
+
+        return null;
     }
 }

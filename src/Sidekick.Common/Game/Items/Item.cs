@@ -1,29 +1,22 @@
 namespace Sidekick.Common.Game.Items;
 
-public class Item(
-    ItemHeader? invariant,
-    ItemHeader itemHeader,
-    ItemProperties itemProperties,
-    IEnumerable<Socket> sockets,
-    IEnumerable<ModifierLine> modifierLines,
-    IEnumerable<PseudoModifier> pseudoModifiers,
-    string text)
+public class Item
 {
-    public ItemHeader? Invariant { get; set; } = invariant;
+    public required ItemHeader? Invariant { get; init; }
 
-    public ItemHeader Header { get; init; } = itemHeader;
+    public required ItemHeader Header { get; init; }
 
-    public ItemProperties Properties { get; init; } = itemProperties;
+    public required ItemProperties Properties { get; init; }
 
-    public List<Socket> Sockets { get; init; } = [.. sockets];
+    public required List<Socket> Sockets { get; init; }
 
-    public List<ModifierLine> ModifierLines { get; set; } = [.. modifierLines];
+    public required List<ModifierLine> ModifierLines { get; init; }
 
-    public List<PseudoModifier> PseudoModifiers { get; init; } = [.. pseudoModifiers];
+    public required List<PseudoModifier> PseudoModifiers { get; init; }
 
-    public string Text { get; set; } = text;
+    public required string Text { get; init; }
 
-    public object? AdditionalInformation { get; set; }
+    public object? AdditionalInformation { get; init; }
 
     public bool CanHaveModifiers => Header.Category switch
     {

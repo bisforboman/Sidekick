@@ -18,14 +18,14 @@ public class ModifierParser
     private readonly Regex CleanOriginalTextPattern = new(" \\((?:implicit|enchant|crafted|veiled|fractured|scourge|crucible)\\)$");
 
     /// <inheritdoc/>
-    public List<ModifierLine> Parse(ParsingItem parsingItem)
+    public List<ModifierLine> Parse(ParsingItem parsingItem, ItemHeader itemHeader)
     {
-        if (parsingItem.Header?.Category is Category.DivinationCard or Category.Gem)
+        if (itemHeader.Category is Category.DivinationCard or Category.Gem)
         {
             return [];
         }
 
-        return MatchModifiers(parsingItem)
+        return MatchModifiers(parsingItem, itemHeader)
             .Select(modifierMatch => CreateModifierLine(modifierMatch, parsingItem))
             // Trim modifier lines
             .Where(x => x.Modifiers.Count > 0)
@@ -80,9 +80,9 @@ public class ModifierParser
         return text.ToString();
     }
 
-    private IEnumerable<ModifierMatch> MatchModifiers(ParsingItem parsingItem)
+    private IEnumerable<ModifierMatch> MatchModifiers(ParsingItem parsingItem, ItemHeader itemHeader)
     {
-        var allAvailablePatterns = GetAllAvailablePatterns(parsingItem);
+        var allAvailablePatterns = GetAllAvailablePatterns(itemHeader);
         foreach (var block in parsingItem.Blocks.Where(x => !x.AnyParsed))
         {
             for (var lineIndex = 0; lineIndex < block.Lines.Count; lineIndex++)
@@ -160,14 +160,14 @@ public class ModifierParser
         }
     }
 
-    private IReadOnlyCollection<ModifierPattern> GetAllAvailablePatterns(ParsingItem parsingItem)
+    private IReadOnlyCollection<ModifierPattern> GetAllAvailablePatterns(ItemHeader itemHeader)
     {
-        if (parsingItem.Header?.Category is Category.Sanctum)
+        if (itemHeader?.Category is Category.Sanctum)
         {
             return [ .. modifierProvider.Patterns[ModifierCategory.Sanctum]];
         }
 
-        if (parsingItem.Header?.Category is Category.Map && parsingItem.Header.ItemCategory is "map.tablet")
+        if (itemHeader?.Category is Category.Map && itemHeader.ItemCategory is "map.tablet")
         {
             return [ .. modifierProvider.Patterns[ModifierCategory.Implicit],
                      .. modifierProvider.Patterns[ModifierCategory.Explicit]];
