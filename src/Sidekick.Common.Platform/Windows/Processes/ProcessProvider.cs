@@ -62,7 +62,6 @@ public class ProcessProvider
 
     private bool PermissionChecked { get; set; }
 
-    private bool HasInitialized { get; set; }
 
     private CancellationTokenSource? WindowsHook { get; set; }
 
@@ -125,17 +124,12 @@ public class ProcessProvider
     public bool IsSidekickInFocus => GetFocusedWindow()?.StartsWith(SIDEKICK_TITLE) ?? false;
 
     /// <inheritdoc/>
-    public int Priority => 0;
-
+    private Task? initialization;
     /// <inheritdoc/>
-    public Task Initialize()
-    {
-        // We can't initialize twice
-        if (HasInitialized)
-        {
-            return Task.CompletedTask;
-        }
+    public Task Initialization => initialization ??= Initialize();
 
+    private Task Initialize()
+    {
         WindowsHook = EventLoop.Run(WinEvent.EVENT_SYSTEM_FOREGROUND,
                                     WinEvent.EVENT_SYSTEM_CAPTURESTART,
                                     IntPtr.Zero,
@@ -143,7 +137,6 @@ public class ProcessProvider
                                     0,
                                     0,
                                     WinEvent.WINEVENT_OUTOFCONTEXT);
-        HasInitialized = true;
 
         return Task.CompletedTask;
     }

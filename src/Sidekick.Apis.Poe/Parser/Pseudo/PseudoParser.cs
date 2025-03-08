@@ -15,11 +15,11 @@ public class PseudoParser
 {
     private List<PseudoDefinition> Definitions { get; } = new();
 
+    private Task? initialization;
     /// <inheritdoc/>
-    public int Priority => 200;
+    public Task Initialization => initialization ??= Initialize();
 
-    /// <inheritdoc/>
-    public async Task Initialize()
+    private async Task Initialize()
     {
         var leagueId = await settingsService.GetString(SettingKeys.LeagueId);
         var game = leagueId.GetGameFromLeagueId();
