@@ -20,12 +20,12 @@ public class GameLanguageProvider(ISettingsService settingsService) : IGameLangu
     /// <inheritdoc />
     public async Task Initialize()
     {
-        var languageCode = await settingsService.GetString(SettingKeys.LanguageParser) ?? EnglishLanguageCode;
+        var languageCode = await settingsService.GetString(SettingKeys.LanguageParser, EnglishLanguageCode);
         language = GetLanguage(languageCode);
         invariantLanguage = GetInvariantLanguage();
 
         // If the language is Chinese, we are forcing the use invariant trade results flag.
-        var useInvariantTradeResults = await settingsService.GetBool(SettingKeys.UseInvariantTradeResults);
+        var useInvariantTradeResults = await settingsService.GetBool(SettingKeys.UseInvariantTradeResults, false);
         if (languageCode == "zh" && !useInvariantTradeResults)
         {
             await settingsService.Set(SettingKeys.UseInvariantTradeResults, true);

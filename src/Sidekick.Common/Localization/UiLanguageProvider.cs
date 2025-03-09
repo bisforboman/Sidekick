@@ -23,8 +23,8 @@ public class UiLanguageProvider(ISettingsService settingsService) : IUiLanguageP
     /// <inheritdoc />
     public async Task Initialize()
     {
-        var language = await settingsService.GetString(SettingKeys.LanguageUi);
-        Set(language ?? "en");
+        var language = await settingsService.GetString(SettingKeys.LanguageUi, "en");
+        Set(language);
     }
 
     /// <inheritdoc />

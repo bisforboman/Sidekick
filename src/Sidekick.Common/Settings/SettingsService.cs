@@ -1,20 +1,17 @@
 using System.Globalization;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Sidekick.Common.Database;
 using Sidekick.Common.Database.Tables;
 using Sidekick.Common.Enums;
 
 namespace Sidekick.Common.Settings;
 
-public class SettingsService(
-    DbContextOptions<SidekickDbContext> dbContextOptions,
-    ILogger<SettingsService> logger) : ISettingsService
+public class SettingsService(DbContextOptions<SidekickDbContext> dbContextOptions) : ISettingsService
 {
     public event Action? OnSettingsChanged;
 
-    public async Task<bool> GetBool(string key)
+    public async Task<bool> GetBool(string key, bool defaultValue)
     {
         await using var dbContext = new SidekickDbContext(dbContextOptions);
         var dbSetting = await dbContext
@@ -25,36 +22,24 @@ public class SettingsService(
             return boolValue;
         }
 
-        var defaultProperty = typeof(DefaultSettings).GetProperty(key);
-        if (defaultProperty == null)
-        {
-            return default;
-        }
-
-        return (bool)(defaultProperty.GetValue(null) ?? false);
+        return defaultValue;
     }
 
-    public async Task<string?> GetString(string key)
+    public async Task<string> GetString(string key, string defaultValue)
     {
         await using var dbContext = new SidekickDbContext(dbContextOptions);
         var dbSetting = await dbContext
                               .Settings.Where(x => x.Key == key)
                               .FirstOrDefaultAsync();
-        if (dbSetting != null)
+        if (dbSetting?.Value is not null)
         {
-            return dbSetting.Value;
+            return dbSetting.Value ?? defaultValue;
         }
-
-        var defaultProperty = typeof(DefaultSettings).GetProperty(key);
-        if (defaultProperty == null)
-        {
-            return default;
-        }
-
-        return (string?)(defaultProperty.GetValue(null) ?? null);
+        
+        return defaultValue;
     }
 
-    public async Task<int> GetInt(string key)
+    public async Task<int> GetInt(string key, int defaultValue)
     {
         await using var dbContext = new SidekickDbContext(dbContextOptions);
         var dbSetting = await dbContext
@@ -65,16 +50,10 @@ public class SettingsService(
             return intValue;
         }
 
-        var defaultProperty = typeof(DefaultSettings).GetProperty(key);
-        if (defaultProperty == null)
-        {
-            return default;
-        }
-
-        return (int)(defaultProperty.GetValue(null) ?? 0);
+        return defaultValue;
     }
 
-    public async Task<DateTimeOffset?> GetDateTime(string key)
+    public async Task<DateTimeOffset> GetDateTime(string key, DateTimeOffset defaultValue)
     {
         await using var dbContext = new SidekickDbContext(dbContextOptions);
         var dbSetting = await dbContext
@@ -85,51 +64,26 @@ public class SettingsService(
             return dateTimeValue;
         }
 
-        var defaultProperty = typeof(DefaultSettings).GetProperty(key);
-        if (defaultProperty == null)
-        {
-            return default;
-        }
-
-        return (DateTimeOffset?)(defaultProperty.GetValue(null) ?? null);
+        return defaultValue;
     }
 
-    public async Task<TValue?> GetObject<TValue>(string key)
+    public async Task<TValue> GetObject<TValue>(string key, TValue defaultValue)
     {
         await using var dbContext = new SidekickDbContext(dbContextOptions);
         var dbSetting = await dbContext
                               .Settings.Where(x => x.Key == key)
                               .FirstOrDefaultAsync();
-        if (dbSetting != null)
+
+        if (dbSetting?.Value is not null)
         {
-            try
-            {
-                return JsonSerializer.Deserialize<TValue>(dbSetting.Value ?? string.Empty);
-            }
-            catch (Exception e)
-            {
-                logger.LogError(e, "[SettingsService] Could not deserialize the value to the requested object.");
-            }
+            return JsonSerializer.Deserialize<TValue>(dbSetting.Value)
+                ?? defaultValue;
         }
 
-        var defaultProperty = typeof(DefaultSettings).GetProperty(key);
-        if (defaultProperty == null)
-        {
-            return default;
-        }
-
-        try
-        {
-            return (TValue?)(defaultProperty.GetValue(null) ?? null);
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, "[SettingsService] Could not cast the default setting value to the requested object.");
-            throw;
-        }
+        return defaultValue;
     }
 
-    public async Task<TEnum?> GetEnum<TEnum>(string key)
+    public async Task<TEnum> GetEnum<TEnum>(string key, TEnum defaultValue)
         where TEnum : struct, Enum
     {
         await using var dbContext = new SidekickDbContext(dbContextOptions);
@@ -141,39 +95,7 @@ public class SettingsService(
             return enumValue;
         }
 
-        var enumFromAttribute = dbSetting?.Value.GetEnumFromValue<TEnum>();
-        if (enumFromAttribute != null)
-        {
-            return enumFromAttribute;
-        }
-
-        var defaultProperty = typeof(DefaultSettings).GetProperty(key);
-        if (defaultProperty == null)
-        {
-            return default;
-        }
-
-        try
-        {
-            var propertyValue = defaultProperty.GetValue(null)?.ToString();
-            if (Enum.TryParse<TEnum>(propertyValue, out var defaultValue))
-            {
-                return defaultValue;
-            }
-
-            var defaultEnumValueFromAttribute = propertyValue?.GetEnumFromValue<TEnum>();
-            if (defaultEnumValueFromAttribute != null)
-            {
-                return defaultEnumValueFromAttribute;
-            }
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, "[SettingsService] Could not cast the default setting value to the requested object.");
-            throw;
-        }
-
-        return default;
+        return defaultValue;
     }
 
     public async Task Set(
@@ -182,20 +104,11 @@ public class SettingsService(
     {
         var stringValue = GetStringValue(value);
 
-        var defaultProperty = typeof(DefaultSettings).GetProperty(key);
-        if (defaultProperty != null)
-        {
-            var defaultValue = GetStringValue(defaultProperty.GetValue(null));
-            if (defaultValue == stringValue)
-            {
-                stringValue = null;
-            }
-        }
-
         await using var dbContext = new SidekickDbContext(dbContextOptions);
         var dbSetting = await dbContext
                               .Settings.Where(x => x.Key == key)
                               .FirstOrDefaultAsync();
+
         if (stringValue == null)
         {
             if (dbSetting == null)
