@@ -1,0 +1,33 @@
+@using Sidekick.Common.Blazor.Settings
+@using Sidekick.Common.Settings
+
+<FormCheckbox Value="@Value"
+              ValueChanged="@ValueChanged">
+    @SettingsLabel
+</FormCheckbox>
+
+@inject ISettingsService SettingsService
+
+@code {
+
+    [Parameter]
+    public required string SettingsKey { get; set; }
+
+    [Parameter]
+    public required string SettingsLabel { get; set; }
+
+    private bool Value { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Value = await SettingsService.GetBool(SettingsKey);
+        await base.OnInitializedAsync();
+    }
+
+    private async Task ValueChanged(bool value)
+    {
+        Value = value;
+        await SettingsService.Set(SettingsKey, value);
+    }
+
+}
