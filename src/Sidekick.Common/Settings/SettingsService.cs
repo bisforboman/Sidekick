@@ -80,6 +80,7 @@ public class SettingsService(
         var dbSetting = await dbContext
                               .Settings.Where(x => x.Key == key)
                               .FirstOrDefaultAsync();
+
         if (dbSetting != null && DateTimeOffset.TryParse(dbSetting.Value, out var dateTimeValue))
         {
             return dateTimeValue;
@@ -129,6 +130,7 @@ public class SettingsService(
         }
     }
 
+
     public async Task<TEnum?> GetEnum<TEnum>(string key)
         where TEnum : struct, Enum
     {
@@ -176,9 +178,7 @@ public class SettingsService(
         return default;
     }
 
-    public async Task Set(
-        string key,
-        object? value)
+    public async Task Set(string key, object? value)
     {
         var stringValue = GetStringValue(value);
 

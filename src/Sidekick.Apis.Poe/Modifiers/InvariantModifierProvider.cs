@@ -32,11 +32,11 @@ public class InvariantModifierProvider
 
     public Dictionary<int, string> ClusterJewelSmallPassiveGrantOptions { get; private set; } = null!;
 
+    private Task? initialization;
     /// <inheritdoc/>
-    public int Priority => 100;
+    public Task Initialization => initialization ??= Initialize();
 
-    /// <inheritdoc/>
-    public async Task Initialize()
+    private async Task Initialize()
     {
         var result = await GetList();
         InitializeIncursionRooms(result);

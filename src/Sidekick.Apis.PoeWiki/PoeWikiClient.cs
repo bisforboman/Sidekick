@@ -67,10 +67,11 @@ public class PoeWikiClient
     public Dictionary<string, string> BlightOilNamesByMetadataIds { get; private set; } = new();
 
     /// <inheritdoc/>
-    public int Priority => 0;
-
+    private Task? initialization;
     /// <inheritdoc/>
-    public async Task Initialize()
+    public Task Initialization => initialization ??= Initialize();
+
+    private async Task Initialize()
     {
         var result = await cacheProvider.GetOrSet("PoeWikiBlightOils",
                                                   async () =>

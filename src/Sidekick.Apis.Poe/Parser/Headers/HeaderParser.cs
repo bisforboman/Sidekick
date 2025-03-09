@@ -24,7 +24,9 @@ public class HeaderParser
     IApiItemProvider apiItemProvider
 ) : IHeaderParser
 {
-    public int Priority => 200;
+    private Task? initialization;
+    /// <inheritdoc/>
+    public Task Initialization => initialization ??= Initialize();
 
     private Regex Affixes { get; set; } = null!;
 
@@ -38,7 +40,7 @@ public class HeaderParser
 
     private string GetLineWithoutSuperiorAffix(string line) => SuperiorAffix.Replace(line, string.Empty).Trim(' ', ',');
 
-    public async Task Initialize()
+    private async Task Initialize()
     {
         var leagueId = await settingsService.GetString(SettingKeys.LeagueId);
         var game = leagueId.GetGameFromLeagueId();
