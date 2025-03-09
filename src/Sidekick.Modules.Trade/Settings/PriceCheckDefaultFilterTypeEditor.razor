@@ -3,21 +3,16 @@
 @using Sidekick.Modules.Trade.Localization
 @using Sidekick.Common.Settings
 
-<FormSelect Label="@Resources["Default_FilterType"]"
-            Value="@Mode"
-            ValueChanged="@ModeChanged"
-            Options="Options"/>
+<MultipleChoiceSetting 
+    Label="@Resources["Default_FilterType"]"
+    SettingsKey="@SettingKeys.PriceCheckDefaultFilterType"
+    Options="@Options"/>
 
 @inject IStringLocalizer<TradeResources> Resources
-@inject ISettingsService SettingsService
 
 @code {
 
-    private string? Mode { get; set; }
-
-    private List<SelectOption> Options { get; set; } =
-    [
-    ];
+    private List<SelectOption> Options { get; set; } = [];
 
     protected override async Task OnInitializedAsync()
     {
@@ -45,15 +40,6 @@
             },
         ];
 
-        Mode = await SettingsService.GetString(SettingKeys.PriceCheckDefaultFilterType) ?? FilterType.Minimum.GetValueAttribute();
-
         await base.OnInitializedAsync();
     }
-
-    private async Task ModeChanged(string? value)
-    {
-        Mode = value;
-        await SettingsService.Set(SettingKeys.PriceCheckDefaultFilterType, value);
-    }
-
 }

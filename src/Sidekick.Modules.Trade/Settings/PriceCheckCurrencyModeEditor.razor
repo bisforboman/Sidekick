@@ -3,21 +3,16 @@
 @using Sidekick.Common.Enums
 @using Sidekick.Common.Settings
 
-<FormSelect Label="@Resources["Preferred_search_mode_for_currency_items"]"
-            Value="@Mode"
-            ValueChanged="ModeChanged"
-            Options="Options"/>
+<MultipleChoiceSetting 
+    Label="@Resources["Preferred_search_mode_for_currency_items"]"
+    SettingsKey="@SettingKeys.PriceCheckCurrencyMode"
+    Options="@Options"/>
 
 @inject IStringLocalizer<SettingsResources> Resources
-@inject ISettingsService SettingsService
 
 @code {
 
-    private string? Mode { get; set; }
-
-    private List<SelectOption> Options { get; set; } =
-    [
-    ];
+    private List<SelectOption> Options { get; set; } = [];
 
     protected override async Task OnInitializedAsync()
     {
@@ -35,15 +30,6 @@
             }
         ];
 
-        Mode = await SettingsService.GetString(SettingKeys.PriceCheckCurrencyMode);
-
         await base.OnInitializedAsync();
     }
-
-    private async Task ModeChanged(string? value)
-    {
-        Mode = value;
-        await SettingsService.Set(SettingKeys.PriceCheckCurrencyMode, value);
-    }
-
 }

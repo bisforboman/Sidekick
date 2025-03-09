@@ -1,0 +1,39 @@
+@using Sidekick.Apis.Poe.Trade.Models
+@using Sidekick.Common.Blazor.Settings
+@using Sidekick.Common.Enums
+@using Sidekick.Common.Settings
+
+<FormSelect
+    Label="@Label"
+    Value="@Value"
+    ValueChanged="@ValueChanged"
+    Options="@Options"/>
+
+@inject ISettingsService SettingsService
+
+@code {
+
+    private string? Value { get; set; }
+
+    [Parameter]
+    public required string Label { get; set; }
+
+    [Parameter]
+    public required string SettingsKey { get; set; }
+
+    [Parameter]
+    public required List<SelectOption> Options { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Value = await SettingsService.GetString(SettingsKey);
+        await base.OnInitializedAsync();
+    }
+
+    private async Task ValueChanged(string? value)
+    {
+        Value = value;
+        await SettingsService.Set(SettingsKey, value);
+    }
+
+}
