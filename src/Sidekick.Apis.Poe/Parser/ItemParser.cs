@@ -47,7 +47,7 @@ public class ItemParser
             }
 
             // Order of parsing is important
-            requirementsParser.Parse(parsingItem);
+            var requirements = requirementsParser.Parse(parsingItem);
             var properties = propertyParser.Parse(parsingItem);
             var modifierLines = modifierParser.Parse(parsingItem);
             propertyParser.ParseAfterModifiers(parsingItem, properties, modifierLines);
