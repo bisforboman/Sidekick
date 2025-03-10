@@ -14,11 +14,12 @@ public class GameLanguageProvider(ISettingsService settingsService) : IGameLangu
 
     public IGameLanguage InvariantLanguage => invariantLanguage ?? throw new SidekickException("The English language could not be found.");
 
-    /// <inheritdoc />
-    public int Priority => 0;
+    private Task? initialization;
+    /// <inheritdoc/>
+    public Task Initialization => initialization ??= Initialize();
 
     /// <inheritdoc />
-    public async Task Initialize()
+    private async Task Initialize()
     {
         var languageCode = await settingsService.GetString(SettingKeys.LanguageParser) ?? EnglishLanguageCode;
         language = GetLanguage(languageCode);

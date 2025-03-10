@@ -10,7 +10,7 @@
         <div class="flex gap-3">
             @if (ApplicationService.SupportsKeybinds)
             {
-                <ButtonPrimary OnClick="RegisterHooks">Bind keyboard hooks</ButtonPrimary>
+                <ButtonPrimary OnClick="() => RegisterHooks()">Bind keyboard hooks</ButtonPrimary>
             }
             <ButtonPrimary OnClick="ThrowException">Throw an exception</ButtonPrimary>
         </div>

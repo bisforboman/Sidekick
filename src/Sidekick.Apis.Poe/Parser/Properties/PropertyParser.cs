@@ -21,11 +21,13 @@ public class PropertyParser
     IStringLocalizer<PoeResources> resources
 ) : IPropertyParser
 {
-    public int Priority => 200;
-
     private List<PropertyDefinition> Definitions { get; set; } = new();
 
-    public async Task Initialize()
+    private Task? initialization;
+    /// <inheritdoc/>
+    public Task Initialization => initialization ??= Initialize();
+
+    private async Task Initialize()
     {
         var leagueId = await settingsService.GetString(SettingKeys.LeagueId);
         var game = leagueId.GetGameFromLeagueId();

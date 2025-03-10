@@ -67,22 +67,9 @@ public partial class Initialization : SidekickView
             // Report initial progress
             await ReportProgress();
 
-            var services = SidekickConfiguration.InitializableServices.Select(serviceType =>
-                {
-                    var service = ServiceProvider.GetRequiredService(serviceType);
-                    return service as IInitializableService;
-                })
-                .Where(x => x != null)
-                .Select(x => x!)
-                .OrderBy(x => x.Priority);
+            var services = SidekickConfiguration.InitializableServices.Select(InitializeServiceAndReportProgress);
 
-            foreach (var service in services)
-            {
-                Logger.LogInformation($"[Initialization] Initializing {service.GetType().FullName}");
-                await service.Initialize();
-                Completed += 1;
-                await ReportProgress();
-            }
+            await Task.WhenAll(services);
 
             // If we have a successful initialization, we delay for half a second to show the
             // "Ready" label on the UI before closing the view
@@ -97,6 +84,17 @@ public partial class Initialization : SidekickView
             await SettingsService.Set(SettingKeys.LanguageParser, null);
             e.Actions = ExceptionActions.ExitApplication;
             throw;
+        }
+    }
+
+    private async Task InitializeServiceAndReportProgress(Type type)
+    {
+        if (ServiceProvider.GetRequiredService(type) is IInitializableService initializableService)
+        {
+            Logger.LogInformation("[Initialization] Initializing {ServiceName}", initializableService.GetType().FullName);
+            await initializableService.Initialization;
+            Completed += 1;
+            await ReportProgress();
         }
     }
 

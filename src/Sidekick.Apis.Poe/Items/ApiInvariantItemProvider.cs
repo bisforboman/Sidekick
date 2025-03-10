@@ -24,11 +24,11 @@ public class ApiInvariantItemProvider
 
     public List<string> UncutGemIds { get; } = [];
 
+    private Task? initialization;
     /// <inheritdoc/>
-    public int Priority => 100;
+    public Task Initialization => initialization ??= Initialize();
 
-    /// <inheritdoc/>
-    public async Task Initialize()
+    private async Task Initialize()
     {
         IdDictionary.Clear();
 

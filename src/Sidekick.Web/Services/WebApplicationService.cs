@@ -6,12 +6,7 @@ public class WebApplicationService : IApplicationService
 {
     public bool SupportsKeybinds => false;
 
-    public int Priority => 9000;
-
-    public Task Initialize()
-    {
-        return Task.CompletedTask;
-    }
+    public Task Initialization { get; } = Task.CompletedTask;
 
     public void Shutdown()
     {

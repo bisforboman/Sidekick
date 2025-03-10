@@ -38,7 +38,7 @@ public class LeagueProvider(
 
     private async Task<List<League>> FetchAll()
     {
-        await gameLanguageProvider.Initialize();
+        await gameLanguageProvider.Initialization;
 
         List<League> leagues = [];
 

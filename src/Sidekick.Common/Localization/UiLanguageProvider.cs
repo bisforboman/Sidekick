@@ -17,11 +17,12 @@ public class UiLanguageProvider(ISettingsService settingsService) : IUiLanguageP
 
     private string? currentLanguage;
 
-    /// <inheritdoc />
-    public int Priority => 0;
+    private Task? initialization;
+    /// <inheritdoc/>
+    public Task Initialization => initialization ??= Initialize();
 
     /// <inheritdoc />
-    public async Task Initialize()
+    private async Task Initialize()
     {
         var language = await settingsService.GetString(SettingKeys.LanguageUi);
         Set(language ?? "en");
