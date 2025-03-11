@@ -9,7 +9,7 @@ public class RequirementsParser(IGameLanguageProvider gameLanguageProvider) : IR
     private Regex LevelPattern { get; } = gameLanguageProvider.Language.DescriptionLevel.ToRegexStartOfLine();
     private static Regex IntPattern = new(@"\d+");
 
-    public Requirements? Parse(ParsingItem parsingItem)
+    public Common.Game.Items.Requirements? Parse(ParsingItem parsingItem)
     {
         foreach (var block in parsingItem.Blocks.Where(x => !x.Parsed))
         {
@@ -25,7 +25,7 @@ public class RequirementsParser(IGameLanguageProvider gameLanguageProvider) : IR
         return null;
     }
 
-    private Requirements CreateRequirements(ParsingBlock block) => new()
+    private Common.Game.Items.Requirements CreateRequirements(ParsingBlock block) => new()
     {
         Level = FindValue(block, LevelPattern),
         Strength = null,

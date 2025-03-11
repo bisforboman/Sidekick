@@ -398,6 +398,10 @@ public class TradeSearchService
             PseudoModifiers = [],
             Text = Encoding.UTF8.GetString(Convert.FromBase64String(result.Item?.Extended?.Text ?? string.Empty)),
             Id = result.Id,
+
+            Requirements = null, // TODO: Replace 
+            RequirementContents = ParseLineContents(result.Item?.Requirements),
+
             Price = new TradePrice()
             {
                 AccountCharacter = result.Listing?.Account?.LastCharacterName,
@@ -411,7 +415,6 @@ public class TradeSearchService
             Image = result.Item?.Icon,
             Width = result.Item?.Width ?? 0,
             Height = result.Item?.Height ?? 0,
-            RequirementContents = ParseLineContents(result.Item?.Requirements),
             PropertyContents = ParseLineContents(result.Item?.Properties),
             AdditionalPropertyContents = ParseLineContents(result.Item?.AdditionalProperties, false),
         };

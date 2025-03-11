@@ -1,4 +1,4 @@
-namespace Sidekick.Apis.Poe.Parser.Requirements;
+namespace Sidekick.Common.Game.Items;
 
 public class Requirements
 {

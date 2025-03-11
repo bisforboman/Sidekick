@@ -60,6 +60,7 @@ public class ItemParser
                 Properties = properties,
                 ModifierLines = modifierLines,
                 PseudoModifiers = pseudoModifiers,
+                Requirements = requirements,
                 Text = parsingItem.Text,
                 AdditionalInformation = ParseAdditionalInformation(parsingItem.Header, modifierLines),
             };
