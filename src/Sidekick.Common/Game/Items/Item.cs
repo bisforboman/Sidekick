@@ -8,6 +8,7 @@ public class Item
     public required ItemProperties Properties { get; init; }
     public required List<ModifierLine> ModifierLines { get; init; }
     public required List<PseudoModifier> PseudoModifiers { get; init; }
+    public required Requirements? Requirements { get; init; }
     public required string Text { get; init; }
     public object? AdditionalInformation { get; init; }
 
